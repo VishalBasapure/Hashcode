@@ -9,7 +9,7 @@ HellaSwag (--limit 1000). Hindi/Kannada: Belebele hin + kan. Hindi metrics: eval
 import argparse, glob, json, os, subprocess, sys, time
 
 TASKS = [  # (tasks, extra flags, limit)
-    ("ifeval", ["--apply_chat_template"], None),
+    ("ifeval", ["--apply_chat_template", "--gen_kwargs", "max_gen_toks=512"], None),
     ("belebele_hin_Deva,belebele_kan_Knda", [], None),
     ("mmlu", [], 18),
     ("hellaswag", [], 1000),
@@ -36,7 +36,8 @@ def main():
         if only and key not in only:
             continue
         cmd = [a.lm_eval, "--model", "hf", "--model_args", f"pretrained={a.model},dtype=float16",
-               "--tasks", tasks, "--num_fewshot", "0", "--batch_size", "auto", "--seed", "0",
+               "--tasks", tasks, "--num_fewshot", "0", "--seed", "0",
+               "--batch_size", "16" if tasks == "ifeval" else "auto",
                "--log_samples", "--output_path", os.path.join(out, "lm_eval")] + extra
         if limit:
             cmd += ["--limit", str(limit)]
