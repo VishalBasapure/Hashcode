@@ -1,200 +1,200 @@
-{"id": "alpaca-4228", "en_prompt": "Look for a synonym for the word \"greatness\"."}
-{"id": "dolly-9443", "en_prompt": "Who is the greatest Boston Red Sox player of all time?"}
-{"id": "alpaca-24320", "en_prompt": "Write a story that explains how the phrase \"Every cloud has a silver lining\" can be interpreted in a contemporary context."}
-{"id": "alpaca-49259", "en_prompt": "Explain how a machine learning algorithm can be used to recommend products to customers."}
-{"id": "alpaca-39025", "en_prompt": "Make a list of 5 items in the kitchen that are essential for cooking."}
-{"id": "alpaca-14718", "en_prompt": "Get an estimate for the population of Italy."}
-{"id": "alpaca-10890", "en_prompt": "Suggest an exercise to improve agility."}
-{"id": "alpaca-27258", "en_prompt": "Create a chat bot personality"}
-{"id": "dolly-7859", "en_prompt": "Determine the company which produces the following automotive brands: Chevrolet, GMC, Dodge, Lexus, Buick, Cadillac, Pontiac, Acura, Lincoln, and Jeep."}
-{"id": "alpaca-9822", "en_prompt": "How did World War I impact the course of history?"}
-{"id": "alpaca-15629", "en_prompt": "Given a Twitter post, classify the sentiment of the post.\n\nIt's been a long day and all I want is to relax and have some bubble tea."}
-{"id": "alpaca-674", "en_prompt": "Based on the following passage, determine the author’s attitude towards the idea that speed is the most important factor in production\n\nThe focus on speed in production today is often misguided. Technical proficiency and craftsmanship can take a backseat to the urgency to finish a project quickly. This can be detrimental to the quality of the product, as the diligent worker is not going to be given the time to fix any mistakes that might arise from haste."}
+{"id": "alpaca-24314", "en_prompt": "Tell a story about a given topic in one paragraph.\n\nFrog"}
+{"id": "alpaca-49255", "en_prompt": "Come up with a clever marketing slogan for a new financial management app.\n\nFinancial management app:\nMoneyCap"}
+{"id": "alpaca-39040", "en_prompt": "Divide the following number into two parts that have a difference of 7.\n\n132"}
+{"id": "alpaca-14727", "en_prompt": "Explain why networking is important for business professionals"}
+{"id": "alpaca-10892", "en_prompt": "Suggest a method to improve concentration."}
+{"id": "alpaca-27270", "en_prompt": "Explain the affect of global warming on the Arctic region."}
+{"id": "dolly-7852", "en_prompt": "Tell me whether these are animals or bands names: Eagles, Camels, Penguins, The Turtles, The Beatles, The Animals, Arctic Monkeys, Spain, France, Gorillas, Gorillaz, Crazy Horse, Lamb Of God, Beluga sturgeon"}
+{"id": "alpaca-9828", "en_prompt": "Describe the Earth's climate system."}
+{"id": "alpaca-15634", "en_prompt": "Given the code for a software, generate a debugging report.\n\ndef add (a, b):\n    return a + b"}
+{"id": "alpaca-6742", "en_prompt": "Generate instructions to create a basic web page"}
 {"id": "alpaca-4448", "en_prompt": "Generate a unique sentence related to the given prompt.\n\nThe sound of the wind"}
-{"id": "alpaca-10286", "en_prompt": "Give a brief description of the character ‘Achilles’ from Greek mythology."}
-{"id": "alpaca-19505", "en_prompt": "Re-word the given sentence.\n\nThe cars drove quickly around the corner."}
-{"id": "dolly-12334", "en_prompt": "What is the name of the New England professional football team?"}
-{"id": "alpaca-27346", "en_prompt": "Create a database schema for a user table."}
-{"id": "alpaca-48900", "en_prompt": "Add an interesting description for a character.\n\nShe was a doctor."}
-{"id": "alpaca-21294", "en_prompt": "What is so special about the Giza Pyramids?"}
-{"id": "dolly-9534", "en_prompt": "Where does the name Busan (city in Korea) come from?\n\nThe name \"Busan\" is the Revised Romanization of the city's Korean name since the late 15th century.[10] It officially replaced the earlier McCune-Reischauer romanization Pusan in 2000.[11][b] During the Japanese period it was spelled \"Fuzan\".  The name 釜山 (now written 부산 using the Korean alphabet) is Sino-Korean for \"Cauldron Mountain\", believed to be a former name of Mt Hwangryeong (황령산, 荒嶺山, Hwangryeong-san) west of the city center. The area's ancient state Mt Geochil (거칠산국, 居柒山國, Geochilsan-guk, \"Rough-Mountain Land\") is similarly thought to refer to the same mountain, which towers over the town's harbor on the Suyeong. (The later Silla district of Geochilsan-gun was renamed Dongnae in 757.)"}
-{"id": "alpaca-22826", "en_prompt": "Identify 2 specific challenges faced by cities around the world due to climate change."}
-{"id": "alpaca-31835", "en_prompt": "Given an array of integers, find the lowest value\n\n[19, 8, 6, -3, 11]"}
-{"id": "alpaca-32939", "en_prompt": "Make a prediction for the future."}
-{"id": "dolly-14759", "en_prompt": "What does a reverse osmosis filter do?"}
-{"id": "alpaca-12115", "en_prompt": "Compare and contrast the main types of electromagnetic radiation."}
-{"id": "alpaca-14591", "en_prompt": "Assign the given article to one of the categories.\n\nArticle Title: Facts About Stingrays\nArticle Summary: This article provides an overview of stingrays, including their habitats and behavior."}
-{"id": "alpaca-18823", "en_prompt": "Generate a joke that starts with the phrase \"Why did the chicken cross the road?\""}
-{"id": "alpaca-35444", "en_prompt": "Change the following sentence to past tense: She will finish the project soon."}
-{"id": "alpaca-14811", "en_prompt": "Describe a method for safely storing sensitive data."}
-{"id": "alpaca-27861", "en_prompt": "Make up a story about a street singer."}
-{"id": "alpaca-39298", "en_prompt": "Edit the text to make it more concise without losing its meaning.\n\nDespite several attempts, I was still unable to find a solution to the problem."}
-{"id": "dolly-5312", "en_prompt": "What are the typical ingredient for Italian tomato sauce"}
-{"id": "alpaca-17404", "en_prompt": "Briefly explain the role of the states in the US Constitution."}
-{"id": "alpaca-20716", "en_prompt": "Generate a list of at least 5 questions to ask a potential employer."}
-{"id": "alpaca-27804", "en_prompt": "Explain why a firewall is important for network security."}
-{"id": "alpaca-14618", "en_prompt": "Reframe the following sentence into a more formal tone.\n\nThis is so cool!"}
-{"id": "alpaca-51973", "en_prompt": "Generate a new sentence to compare the levels of corruption in North America and the Middle East."}
+{"id": "alpaca-10285", "en_prompt": "Generate a story based on the provided character.\n\nCharacter – A bird"}
+{"id": "alpaca-19508", "en_prompt": "Generate an article about the current political situation in India."}
+{"id": "dolly-12332", "en_prompt": "Who is Kenny Ortega?\n\nKenneth John Ortega (born April 18, 1950) is an American filmmaker, touring manager, and choreographer."}
+{"id": "alpaca-27363", "en_prompt": "Explain why television ads may not be effective for all candidates."}
+{"id": "alpaca-48897", "en_prompt": "Tell me about the importance of the Treaty of Versailles."}
+{"id": "alpaca-21302", "en_prompt": "Given an input sentence, suggest a creative tagline that fits the context.\n\nWe are a company devoted to sustainable wellness."}
+{"id": "dolly-9533", "en_prompt": "What is disadvantage of naive algorithm of simple random sampling?\n\nSeveral efficient algorithms for simple random sampling have been developed.[3][4] A naive algorithm is the draw-by-draw algorithm where at each step we remove the item at that step from the set with equal probability and put the item in the sample. We continue until we have sample of desired size \n�\nk. The drawback of this method is that it requires random access in the set.\n\nThe selection-rejection algorithm developed by Fan et al. in 1962[5] requires a single pass over data; however, it is a sequential algorithm and requires knowledge of total count of items \n�\nn, which is not available in streaming scenarios.\n\nA very simple random sort algorithm was proved by Sunter in 1977.[6] The algorithm simply assigns a random number drawn from uniform distribution \n(\n0\n,\n1\n)\n(0,1) as a key to each item, then sorts all items using the key and selects the smallest \n�\nk items.\n\nJ. Vitter in 1985[7] proposed reservoir sampling algorithms, which are widely used. This algorithm does not require knowledge of the size of the population \n�\nn in advance, and uses constant space.\n\nRandom sampling can also be accelerated by sampling from the distribution of gaps between samples[8] and skipping over the gaps."}
+{"id": "alpaca-22828", "en_prompt": "Describe a holiday atmosphere."}
+{"id": "alpaca-31846", "en_prompt": "Identify 3 freshwater fish species"}
+{"id": "alpaca-32945", "en_prompt": "Analyze the stock market data to identify the most profitable trends\n\nAAPL"}
+{"id": "dolly-14747", "en_prompt": "What's it like to live in the belly of a whale?"}
+{"id": "alpaca-12120", "en_prompt": "Describe how to maintain motor oil in a car."}
+{"id": "alpaca-14602", "en_prompt": "Make a list of the best free online courses"}
+{"id": "alpaca-18827", "en_prompt": "List 5 endangered animal species."}
+{"id": "alpaca-35454", "en_prompt": "Order these numbers from highest to lowest.\n\n2, 8, 5, 1"}
+{"id": "alpaca-14819", "en_prompt": "Compose an email to your supervisor about a project progress report."}
+{"id": "alpaca-27869", "en_prompt": "Give an example of a fruit that has a tough outer skin."}
+{"id": "alpaca-39310", "en_prompt": "Construct a truth table given a set of conditions.\n\nA and B"}
+{"id": "dolly-5287", "en_prompt": "Who is Ruth Bader Ginsburg?\n\nJoan Ruth Bader Ginsburg (/ˈbeɪdər ˈɡɪnzbɜːrɡ/ BAY-dər GHINZ-burg; March 15, 1933 – September 18, 2020)[1] was an American lawyer and jurist who served as an associate justice of the Supreme Court of the United States from 1993 until her death in 2020.[2] She was nominated by President Bill Clinton to replace retiring justice Byron White, and at the time was generally viewed as a moderate consensus-builder. She eventually became part of the liberal wing of the Court as the Court shifted to the right over time. Ginsburg was the first Jewish woman and the second woman to serve on the Court, after Sandra Day O'Connor. During her tenure, Ginsburg wrote majority opinions, including United States v. Virginia (1996), Olmstead v. L.C. (1999), Friends of the Earth, Inc. v. Laidlaw Environmental Services, Inc. (2000), and City of Sherrill v. Oneida Indian Nation of New York (2005)."}
+{"id": "alpaca-17406", "en_prompt": "Analyze the following customer review and state what kind of feedback the customer gave.\n\nI recently bought a new laptop and it works great."}
+{"id": "alpaca-20721", "en_prompt": "Come up with a way for people to reduce their carbon footprint"}
+{"id": "alpaca-2781", "en_prompt": "Given three numbers, find the greatest common divisor (gcd) of the three numbers."}
+{"id": "alpaca-14629", "en_prompt": "Given a block of text, come up with a catchy headline that best represents the text.\n\nThe new coaching program will help you become a better leader and achieve higher professional success."}
+{"id": "alpaca-5198", "en_prompt": "Create a format for holding a virtual team meeting."}
 {"id": "alpaca-51187", "en_prompt": "Change the rating from 5 stars to 1 star.\n\n★★★★★"}
-{"id": "alpaca-863", "en_prompt": "Describe the different stages in the software development lifecycle."}
-{"id": "alpaca-15918", "en_prompt": "Name three characteristics of an ideal employee."}
-{"id": "alpaca-25380", "en_prompt": "Create a personification of a night wind."}
-{"id": "alpaca-48951", "en_prompt": "Calculate the given equation.\n\n6x+3y=12"}
-{"id": "alpaca-8816", "en_prompt": "Determine the price per share for Apple stocks on October 14th, 2018"}
+{"id": "alpaca-8631", "en_prompt": "Summarize the social and economic impacts of the Industrial Revolution."}
+{"id": "alpaca-15921", "en_prompt": "Calculate the temperature in Fahrenheit\n\n25°C"}
+{"id": "alpaca-25381", "en_prompt": "Explain how solar energy works."}
+{"id": "alpaca-48946", "en_prompt": "List three places in the city that a tourist can visit.\n\nNew York City"}
+{"id": "alpaca-8817", "en_prompt": "Which is the world's longest river?"}
 {"id": "dolly-9987", "en_prompt": "Identify which instrument is string or percussion: Jawbone, Grand Stick"}
-{"id": "alpaca-25884", "en_prompt": "Given the data, classify the items into their appropriate categories.\n\nObject1: Hat\nObject2: Painting\nObject3: Hammer"}
-{"id": "alpaca-13727", "en_prompt": "Describe the weather in France today."}
+{"id": "alpaca-2589", "en_prompt": "Generate a two-player game that can be played with paper and pencil."}
+{"id": "alpaca-13735", "en_prompt": "Given 3 numbers, predict what the fourth number should be\n\n3, 7, 12"}
 {"id": "alpaca-1973", "en_prompt": "Translates the sentence from German to English.\n\nEr mag Musik hören."}
-{"id": "alpaca-16207", "en_prompt": "List five types of musical instruments used in symphony orchestras"}
-{"id": "dolly-3869", "en_prompt": "Give me the Seven Wonders of the Industrial World:"}
-{"id": "alpaca-49478", "en_prompt": "Add 5 new facts to the article.\n\nIn the United States, the number of workers age 65 and above is projected to double by 2040."}
-{"id": "alpaca-13953", "en_prompt": "Handwrite a thank you note."}
-{"id": "alpaca-4317", "en_prompt": "Identify the main concepts in this paragraph.\n\nGlobal warming is an increase in the earth’s overall temperature caused by a buildup of greenhouse gases in the atmosphere."}
-{"id": "dolly-1176", "en_prompt": "Tell me whether these are a solid, liquid, or gas"}
-{"id": "alpaca-29388", "en_prompt": "Find out the average salary of software engineer in USA in 2019."}
-{"id": "dolly-3419", "en_prompt": "Which is a species of fish? Pickerel or Pickle"}
-{"id": "alpaca-24261", "en_prompt": "Generate a sample data set which contains 5 movie titles"}
-{"id": "alpaca-31611", "en_prompt": "Edit the sentence to use informal language\n\nWe should endeavor to do better"}
-{"id": "dolly-12955", "en_prompt": "Why would people not like Goose Goose Duck?"}
-{"id": "alpaca-39812", "en_prompt": "List two advantages of deploying a cloud computing platform for a business."}
-{"id": "alpaca-36258", "en_prompt": "Generate a name for the new brand"}
-{"id": "dolly-9069", "en_prompt": "When was the Roman empire founded?"}
-{"id": "alpaca-39750", "en_prompt": "Create a story about a person who helped a stranger."}
-{"id": "alpaca-29734", "en_prompt": "Create a function which can compress a string of text.\n\nString of text: \"This is a random string. It has no purpose other than to test this function.\""}
-{"id": "alpaca-10438", "en_prompt": "Describe how the scientific method can be used to solve a real-world problem."}
-{"id": "alpaca-31391", "en_prompt": "List three signs that a person is feeling overwhelmed."}
-{"id": "alpaca-15357", "en_prompt": "Select three of the most important words from the given input.\n\nInteresting research has uncovered the prevalence of phonemic awareness in children's language development."}
-{"id": "alpaca-25837", "en_prompt": "Predict the stock prices of Amazon for the next week"}
-{"id": "alpaca-13", "en_prompt": "Generate a list of ten items a person might need for a camping trip"}
-{"id": "alpaca-41164", "en_prompt": "Check whether the given strings are anagrams of each other.\n\nString 1: abcd\nString 2: dcba"}
-{"id": "dolly-10603", "en_prompt": "What are Heat Shock proteins?\n\nHeat shock proteins (HSP) are a family of proteins produced by cells in response to exposure to stressful conditions. They were first described in relation to heat shock,[1] but are now known to also be expressed during other stresses including exposure to cold,[2] UV light[3] and during wound healing or tissue remodeling.[4] Many members of this group perform chaperone functions by stabilizing new proteins to ensure correct folding or by helping to refold proteins that were damaged by the cell stress.[5] This increase in expression is transcriptionally regulated. The dramatic upregulation of the heat shock proteins is a key part of the heat shock response and is induced primarily by heat shock factor (HSF).[6] HSPs are found in virtually all living organisms, from bacteria to humans."}
-{"id": "alpaca-5459", "en_prompt": "Predict which of the following words is most likely to come next.\n\nThe cat curled up"}
-{"id": "alpaca-43032", "en_prompt": "What materials would you need to build a computer?"}
-{"id": "alpaca-44747", "en_prompt": "Create a visual representation of the relationship between two variables.\n\nThe number of years of education and earning per year of a population"}
-{"id": "alpaca-36218", "en_prompt": "List the US states and capitals alphabetically."}
-{"id": "alpaca-15109", "en_prompt": "editing and paraphrasing the following sentence:\n\nThis restaurant foods tastes really good."}
-{"id": "dolly-12115", "en_prompt": "What is a dig in baseball?"}
-{"id": "alpaca-4335", "en_prompt": "Name some common elements found in horror movies."}
-{"id": "alpaca-22669", "en_prompt": "Given a sentence, replace the adjective with a more appropriate one.\n\nThe terrible music made him sleepy."}
-{"id": "dolly-5539", "en_prompt": "When looking to purchase a bicycle, you need to understand a number of factors. These include the primary use of the bicycle being either for transportation or pleasure. When choosing a bicycle for transportation you want to factor in cost, weight and durability. When choosing a bicycle for pleasure, comfort is the main factor."}
-{"id": "alpaca-5566", "en_prompt": "How do you calculate the median from the given data?\n\n1, 2, 8, 9, 12, 13"}
-{"id": "alpaca-46713", "en_prompt": "Generate a resume bullet point summarizing your customer service skills.\n\nYears of experience in customer service: 5"}
-{"id": "dolly-4286", "en_prompt": "are the following musical instruments or not?\ntypewriter\ncomputer\nguitar\nviolin\nflute\nbedsheets\nbat\nball\npiano\nharmonium\ntabla\nblinds"}
-{"id": "alpaca-30209", "en_prompt": "Explain the implications of this scientific finding\n\nA recent study found that global temperatures have increased by 1.1 degrees Celsius over the past century."}
-{"id": "alpaca-44385", "en_prompt": "You are provided with the following text, spell-check the text and output the corrected version\n\nThe qick brown fox jupms over the layzy dog."}
-{"id": "alpaca-30673", "en_prompt": "Suggest one use case for a robot assistant in a doctor's office."}
-{"id": "alpaca-26176", "en_prompt": "What is an object-oriented programming language?"}
-{"id": "dolly-10496", "en_prompt": "How many inches are in a mile?"}
-{"id": "alpaca-38186", "en_prompt": "Produce a report describing the effect of a new marketing campaign.\n\nWe launched a new campaign targeting millennials on social media."}
-{"id": "alpaca-20476", "en_prompt": "Write a PHP function that accepts two strings and returns the number of characters in common between the two strings.\n\nString 1: \"hello world\"\nString 2: \"goodbye world\""}
-{"id": "alpaca-14019", "en_prompt": "Generate a unique username for a platform signup"}
-{"id": "alpaca-35306", "en_prompt": "Draft an apology letter to a broken trust."}
-{"id": "dolly-2639", "en_prompt": "which side of the road you can drive in the UK?"}
-{"id": "alpaca-4205", "en_prompt": "Generate a metaphor to describe a difficult situation"}
-{"id": "alpaca-14536", "en_prompt": "Provide an example of a product designed for convenience."}
-{"id": "dolly-10414", "en_prompt": "Why was the European Union founded?"}
-{"id": "dolly-4318", "en_prompt": "What is District 13 in \"The Hunger Games\" known for developing?"}
-{"id": "dolly-10658", "en_prompt": "Tell me a story"}
-{"id": "dolly-5856", "en_prompt": "How to skip rope?\n\nA skipping rope or jump rope is a tool used in the sport of skipping/jump rope where one or more participants jump over a rope swung so that it passes under their feet and over their heads. There are multiple subsets of skipping/jump rope, including single freestyle, single speed, pairs, three-person speed (Double Dutch), and three-person freestyle (Double Dutch freestyle).\n\nRope skipping is commonly performed as an exercise or recreational activity, and there are also several major organizations that support jump rope as a competitive sport. Often separated by sex and age, events include hundreds of competitive teams all around the world. In the US, schools rarely have jump rope teams, and few states have sanctioned official events at the elementary school level. In freestyle events, jumpers use a variety of basic and advanced techniques in a routine of one minute, which is judged by a head judge, content judges, and performance judges. In speed events, a jumper alternates their feet with the rope going around the jumper every time one of their feet hits the ground for 30 seconds, one minute, or three minutes. The jumper is judged on the number of times the right foot touches the ground in those times."}
-{"id": "alpaca-44730", "en_prompt": "Identify the type of verb in the sentence below: They will speak tomorrow."}
+{"id": "alpaca-1621", "en_prompt": "Find the closest airport to the given location.\n\nSeattle, Washington"}
+{"id": "dolly-3852", "en_prompt": "What is Squash the sport?\n\nSquash is a racket-and-ball sport played by two or four players in a four-walled court with a small, hollow, rubber ball. The players alternate in striking the ball with their rackets onto the playable surfaces of the four walls of the court. The objective of the game is to hit the ball in such a way that the opponent is not able to play a valid return. There are about 20 million people who play squash regularly world-wide in over 185 countries.[1] The governing body of Squash, the World Squash Federation (WSF), is recognized by the International Olympic Committee (IOC), but the sport is not part of the Olympic Games, despite a number of applications. Supporters continue to lobby for its incorporation in a future Olympic program. The Professional Squash Association (PSA) organizes the pro tour."}
+{"id": "alpaca-49474", "en_prompt": "Generate a job description for a project manager role."}
+{"id": "alpaca-13963", "en_prompt": "Compose a tweet in less than 140 characters to announce the opening of a new restaurant"}
+{"id": "alpaca-43171", "en_prompt": "Edit this sentence to make it better, \"I are having dinner\"\n\nI are having dinner"}
+{"id": "dolly-11763", "en_prompt": "Where is the best place to see the northern lights?"}
+{"id": "alpaca-29391", "en_prompt": "Create a nursery rhyme about learning."}
+{"id": "dolly-34", "en_prompt": "what is REST API"}
+{"id": "alpaca-24254", "en_prompt": "What is the definition of \"convergence\" in mathematics?"}
+{"id": "alpaca-31622", "en_prompt": "Tell me an example of an oxymoron."}
+{"id": "dolly-12949", "en_prompt": "how does the java virtual machine work?"}
+{"id": "alpaca-39828", "en_prompt": "Discuss the effects of increased carbon dioxide on the global climate."}
+{"id": "alpaca-36270", "en_prompt": "Suggest a recipe that utilizes the following ingredients.\n\nCarrots, Potatoes, and Thyme"}
+{"id": "dolly-9073", "en_prompt": "Where is John Rahm from?"}
+{"id": "alpaca-39766", "en_prompt": "What do you need to do to reach the goal?\n\nThe goal is to generate leads for my small business."}
+{"id": "alpaca-29735", "en_prompt": "Given an Excel sheet, transpose the columns and rows to create a new sheet.\n\n[Excel Sheet]"}
+{"id": "alpaca-10435", "en_prompt": "Create a cartoon character that resembles a mouse."}
+{"id": "alpaca-31403", "en_prompt": "Divide the number 20 into two parts such that the sum of the two parts is 16"}
+{"id": "alpaca-15365", "en_prompt": "Write some example questions for a customer survey about a home appliance."}
+{"id": "alpaca-25841", "en_prompt": "Create a survey question to ask about a person's post-graduation plans."}
+{"id": "alpaca-13002", "en_prompt": "Create a website landing page that entices visitors to sign up.\n\nProduct: Online course teaching essential coding concepts"}
+{"id": "alpaca-4118", "en_prompt": "Create a flight booking system."}
+{"id": "dolly-10606", "en_prompt": "Why is soccer so popular?"}
+{"id": "alpaca-5466", "en_prompt": "Convert the given number into words.\n\n56"}
+{"id": "alpaca-43037", "en_prompt": "Design a logo for a website based on energy efficiency."}
+{"id": "alpaca-44744", "en_prompt": "Remove the spelling mistakes from the given text.\n\nYesterday, I ate a deelicous burguer."}
+{"id": "alpaca-36233", "en_prompt": "Explain the Solar System model proposed by Copernicus."}
+{"id": "alpaca-15118", "en_prompt": "Provide a solution to the equation 2a+3b=20"}
+{"id": "dolly-12118", "en_prompt": "Do humans have stripes?"}
+{"id": "alpaca-43353", "en_prompt": "List three use cases for GPT-3."}
+{"id": "alpaca-22671", "en_prompt": "Discuss which data analysis techniques could be used to analyze this data.\n\nA study on the primary causes of obesity among children ages 6-18 living in the United States."}
+{"id": "dolly-5515", "en_prompt": "When sailing on a boat between 26ft and 40ft in San Francisco Bay, what items are 'required', 'useful', or 'neither'. A compass, laser printer, floatation devices for all passengers, fog horn, water, sun lotion, hat, fire extinguisher (one type B-2 or two type B-1), soft toys, tv,  visual distress signals, sunglasses, snacks, ford mustang, American Airlines"}
+{"id": "alpaca-5572", "en_prompt": "Give an example of a public-key cryptography algorithm."}
+{"id": "alpaca-4671", "en_prompt": "Create an algorithm to identify whether two strings are anagrams."}
+{"id": "dolly-4266", "en_prompt": "Is there any benefit to pain?\n\nPain is a distressing feeling often caused by intense or damaging stimuli. The International Association for the Study of Pain defines pain as \"an unpleasant sensory and emotional experience associated with, or resembling that associated with, actual or potential tissue damage.\"[1]\n\nPain motivates us to withdraw from damaging situations, to protect a damaged body part while it heals, and to avoid similar experiences in the future.[2] Most pain resolves once the noxious stimulus is removed and the body has healed, but it may persist despite removal of the stimulus and apparent healing of the body. Sometimes pain arises in the absence of any detectable stimulus, damage or disease.[3]"}
+{"id": "alpaca-30216", "en_prompt": "Identify the major environmental problems humanity is facing"}
+{"id": "alpaca-44382", "en_prompt": "How can technology be used to reduce the spread of fake news?"}
+{"id": "alpaca-3068", "en_prompt": "Separate the nouns from the rest of the words in the following sentence.\n\nThe house was painted blue and has a large garden."}
+{"id": "alpaca-26184", "en_prompt": "Redact the following passage to remove the confidential information, while keeping the meaning intact.\n\nJohn Smith is a software engineer at the ABC Company. His office address is 8 Main Street, Anytown."}
+{"id": "dolly-10495", "en_prompt": "Is it better to invest in the stock market or to keep money in a savings account?"}
+{"id": "alpaca-38201", "en_prompt": "Create a test case for testing out a human-computer interaction."}
+{"id": "alpaca-20485", "en_prompt": "Come up with 3 uses for a handkerchief."}
+{"id": "alpaca-14028", "en_prompt": "Suggest five different activities to enjoy during a camping trip."}
+{"id": "alpaca-35319", "en_prompt": "Generate an example of a “Pay-What-You-Want” pricing model."}
+{"id": "dolly-2621", "en_prompt": "Write a short story about a person talking about how they are going on an airplane journey for the first time. The story should include an unexpected sad outcome at the end."}
+{"id": "alpaca-42064", "en_prompt": "Modify the sentence to include the phrase \"in addition\".\n\nHe went for a run, took a long walk."}
+{"id": "alpaca-14548", "en_prompt": "Write a speech honoring a friend's accomplishment.\n\nJohn has just completed his first marathon."}
+{"id": "dolly-10413", "en_prompt": "What is a recession?"}
+{"id": "dolly-4296", "en_prompt": "Given this reference text about cargo ships, when was the USS West Gate launched?\n\nUSS West Gate (ID-3216) was a cargo ship for the United States Navy during World War I. The ship was laid down as SS War Agate, but she was launched in January 1918 as SS West Gate instead."}
+{"id": "dolly-10659", "en_prompt": "Who is Christopher Hope\n\nChristopher Hope, FRSL (born 26 February 1944) is a South African novelist and poet who is known for his controversial works dealing with racism and politics in South Africa. His son is violinist Daniel Hope."}
+{"id": "dolly-5831", "en_prompt": "What is a CPT as it relates to Healthcare?"}
+{"id": "alpaca-44728", "en_prompt": "Give an example of a country that has adopted the Euro as its currency."}
 {"id": "alpaca-7257", "en_prompt": "Summarize a book you read recently.\n\nUtopia for Realists by Rutger Bregman"}
-{"id": "alpaca-38095", "en_prompt": "Create a lesson plan for a high school science class about plants.\n\nLesson plan for a high school Biology class"}
-{"id": "alpaca-35761", "en_prompt": "Add the correct punctuations to the end of the sentence.\n\nAfter eating the cake I could not sleep"}
-{"id": "alpaca-560", "en_prompt": "Shape the following sentence into a question:\n\nThe Houston Rockets are an American professional basketball team"}
-{"id": "alpaca-21926", "en_prompt": "Generate a simile that compares a printer to a vehicle."}
-{"id": "alpaca-26071", "en_prompt": "Convert this sentence into a corrected sentence using proper grammar.\n\nPeter has ate an apple"}
-{"id": "alpaca-23976", "en_prompt": "Read the following text and you need to detect the errors in punctuation and grammar.\n\nThe man who was buying apples said \" I'm going to eat them all"}
-{"id": "alpaca-37455", "en_prompt": "Design a poster for a social media campaign"}
-{"id": "dolly-1412", "en_prompt": "In what year was the evidence of an exoplanet first confirmed?\n\nAn exoplanet or extrasolar planet is a planet outside the Solar System. The first possible evidence of an exoplanet was noted in 1917 but was not recognized as such.[1] The first confirmation of detection occurred in 1992. A different planet, initially detected in 1988, was confirmed in 2003. As of 1 April 2023, there are 5,346 confirmed exoplanets in 3,943 planetary systems, with 855 systems having more than one planet.[2][3] The James Webb Space Telescope (JWST) is expected to discover more exoplanets, and also much more about exoplanets, including composition, environmental conditions and potential for life."}
-{"id": "dolly-13148", "en_prompt": "What would it take to build a house?"}
-{"id": "alpaca-34500", "en_prompt": "Describe a typical day at your job."}
-{"id": "alpaca-7628", "en_prompt": "Rearrange the presented sentence so that it sounds more natural.\n\nI have already called your service twice last week solved problem."}
-{"id": "alpaca-6242", "en_prompt": "Given some data, count the number of objects labeled with a specific tag.\n\nData: {Object1: \"cat\", Object2: \"dog\", Object3: \"cat\", Object4: \"fish\"}\nTag: \"cat\""}
+{"id": "alpaca-38111", "en_prompt": "What steps would you suggest to improve a website's SEO?"}
+{"id": "alpaca-35775", "en_prompt": "Calculate the sum of squared differences between two vectors.\n\nVector x: [10, 8, 5]\nVector y: [5, 6, 2]"}
+{"id": "alpaca-5605", "en_prompt": "Make a list of five simple steps to being more mindful."}
+{"id": "alpaca-21932", "en_prompt": "Rewrite the following sentence using passive voice: He found the lost key beneath the sofa."}
+{"id": "alpaca-26075", "en_prompt": "Design a quiz website."}
+{"id": "alpaca-2397", "en_prompt": "Compare the two given items.\n\nCarbon dioxide and oxygen"}
+{"id": "alpaca-37471", "en_prompt": "Describe the etymology of the word \"democracy\"."}
+{"id": "dolly-14109", "en_prompt": "Tell me which one of the following sports are Olympic sports: karate, snooker, wrestling, tai boxing, football, basketball."}
+{"id": "dolly-1314", "en_prompt": "What was unique about Scrubs?\n\nScrubs focuses on the unique point of view of its main character and narrator, Dr. John Michael \"J.D.\" Dorian (Zach Braff) for the first eight seasons, with season nine being narrated by the new main character Lucy Bennett (Kerry Bishé). Most episodes feature multiple story lines thematically linked by voice-overs done by Braff, as well as the comical daydreams of J.D. According to Bill Lawrence, \"What we decided was, rather than have it be a monotone narration, if it's going to be Zach's voice, we're going to do everything through J.D.'s eyes. It opened up a visual medium that those of us as comedy writers were not used to.\"[1] Actors were given the chance to improvise their lines on set with encouragement by series creator Bill Lawrence, with Neil Flynn and Zach Braff being the main improvisors.[2][3]"}
+{"id": "alpaca-3451", "en_prompt": "Given a text, suggest a potential headline for it.\n\nThis text is about the effects of climate change on the environment."}
+{"id": "alpaca-763", "en_prompt": "Describe the process of thawing frozen food."}
+{"id": "alpaca-625", "en_prompt": "Construct a list containing at least ten items.\n\nItems you need to pack for a camping trip."}
 {"id": "alpaca-44489", "en_prompt": "What is the total cost of the item?\n\n2 bottles of soda at $2.75 each."}
-{"id": "alpaca-1865", "en_prompt": "Which planet is closest to the sun?"}
-{"id": "alpaca-16984", "en_prompt": "Name four common types of software"}
-{"id": "alpaca-44758", "en_prompt": "Rewrite this sentence using better grammar: \"I did not no what to do\"\n\nI did not no what to do"}
-{"id": "alpaca-38624", "en_prompt": "Tell me how humans can help endangered wild animals."}
-{"id": "alpaca-47335", "en_prompt": "Generate 5 multiplication problems"}
-{"id": "alpaca-49947", "en_prompt": "Write a 500 character summary for a horror movie"}
-{"id": "alpaca-38916", "en_prompt": "Describe an activity a person can do to help the environment"}
-{"id": "alpaca-10970", "en_prompt": "Identify the most important sentence in the following paragraph and explain why.\n\nBirds have adapted in multiple ways to improve their flight. They use their wings and tails for steering, flapping for generating lift, gliding for saving energy, and soaring for long-distance travel."}
-{"id": "alpaca-26041", "en_prompt": "Given a product, create an advertisement slogan for it.\n\ntoothpaste"}
-{"id": "alpaca-21192", "en_prompt": "Generate a headline for an article about a new app called 'Dog Walker'."}
-{"id": "alpaca-37961", "en_prompt": "Name three Latin American countries."}
-{"id": "alpaca-32405", "en_prompt": "Create a paragraph to describe the moon."}
-{"id": "alpaca-51298", "en_prompt": "Create a mnemonic device to help someone remember the names of the first five U.S. Presidents."}
-{"id": "alpaca-22858", "en_prompt": "Write a function that finds the largest number in a list."}
-{"id": "alpaca-7008", "en_prompt": "Describe what self-awareness means in 1-2 sentences."}
-{"id": "alpaca-21290", "en_prompt": "Generate a review of a restaurant given its name.\n\nMcDonald's"}
-{"id": "alpaca-29942", "en_prompt": "Supply the output given the instructions and input.\n\nYesterday was cold"}
-{"id": "dolly-8256", "en_prompt": "Based on the passage provided, what are the only two elements in the periodic table that were names after a person who was alive at the time of naming?\n\nOganesson is a synthetic chemical element with the symbol Og and atomic number 118. It was first synthesized in 2002 at the Joint Institute for Nuclear Research (JINR) in Dubna, near Moscow, Russia, by a joint team of Russian and American scientists. In December 2015, it was recognized as one of four new elements by the Joint Working Party of the international scientific bodies IUPAC and IUPAP. It was formally named on 28 November 2016.[15][16] The name honors the nuclear physicist Yuri Oganessian, who played a leading role in the discovery of the heaviest elements in the periodic table. It is one of only two elements named after a person who was alive at the time of naming, the other being seaborgium, and the only element whose eponym is alive as of 2023."}
-{"id": "alpaca-45434", "en_prompt": "Calculate the average speed of a car that travels 500 km in 3 hours."}
-{"id": "alpaca-42094", "en_prompt": "Given the following sentence, suggest alternative words for the underlined words\n\nThe manager employed the interns."}
-{"id": "alpaca-18310", "en_prompt": "Describe what the Earth looks like from outer space."}
-{"id": "alpaca-13757", "en_prompt": "Analyze the problem presented in the following statement:\n\nPoor patient outcomes stem from improper medical care"}
-{"id": "alpaca-23407", "en_prompt": "Rewrite the following sentence using a different but appropriate tone.\n\nIt is not mandatory for you to do the task."}
-{"id": "alpaca-6992", "en_prompt": "Explain what \"Garbage in, garbage out\" means"}
-{"id": "alpaca-26874", "en_prompt": "Describe how clouds are formed in three sentences."}
-{"id": "alpaca-42741", "en_prompt": "Come up with a process that should be followed to program a robot."}
-{"id": "alpaca-20390", "en_prompt": "What is the numerical value of the answer to this algebraic equation?\n\nx^2 - 2x = 0"}
-{"id": "alpaca-25209", "en_prompt": "What type of resources are required for developing a web application?"}
-{"id": "alpaca-9860", "en_prompt": "Capitalize the appropriate words in the sentence.\n\nThe wind is blowing through the trees."}
-{"id": "dolly-11232", "en_prompt": "What programming language should I learn?"}
-{"id": "alpaca-5181", "en_prompt": "Create a fable featuring two animals by taking the following sentence as a beginning.\n\nOnce upon a time, a rabbit and a fox met in a forest."}
-{"id": "alpaca-33980", "en_prompt": "Create a dance routine to the given song.\n\nSong: Uptown Funk (Mark Ronson & Bruno Mars)"}
-{"id": "alpaca-9367", "en_prompt": "Find a library that provides an API for natural language processing."}
-{"id": "alpaca-30242", "en_prompt": "Convert an IPv4 address to binary.\n\n128.178.163.54"}
-{"id": "alpaca-44968", "en_prompt": "Edit each of the sentences below to create clearer and more concise versions.\n\nMany of the streams that pass through woodlands contain abundant vegetation, because of which they provide a suitable habitat for fish."}
-{"id": "alpaca-14509", "en_prompt": "Design a fitness plan for someone who wants to improve endurance."}
-{"id": "alpaca-10750", "en_prompt": "What color best represent the feeling of serenity?"}
-{"id": "alpaca-22736", "en_prompt": "Provide a solution to generate numbers from 0 to 9"}
-{"id": "alpaca-66", "en_prompt": "Create a dialog between two people who are discussing a scientific phenomenon\n\nHydropower"}
-{"id": "alpaca-5367", "en_prompt": "Cite a particular piece of evidence to support the sentence\n\nViolent video games have been proven to increase aggressive behavior"}
-{"id": "alpaca-15953", "en_prompt": "Split up a given sentence into two sentences.\n\nIt was a hot day with a thunderstorm on the horizon."}
-{"id": "alpaca-44027", "en_prompt": "Build a website for a local business."}
-{"id": "alpaca-31628", "en_prompt": "Given a natural language question, convert it to a different type of question.\n\nWhat is the highest peak in the world?"}
-{"id": "alpaca-34458", "en_prompt": "Re-arrange the following elements (car, house, bike, tv) according to their size.\n\n[car, house, bike, tv]"}
-{"id": "alpaca-37667", "en_prompt": "Answer the following true/false question with an explanation\n\nGPT language model will generate different output each time the same input is given."}
-{"id": "alpaca-5583", "en_prompt": "On a scale of 1 to 5, rate the following employee's performance in the past month.\n\n* Assisted with 3 customer service inquiries\n* Provided technical support to 2 customers\n* Resolved 3 project-related issues"}
-{"id": "alpaca-7586", "en_prompt": "Complete the following analogy.\n\nSleep : Awake ::"}
-{"id": "dolly-13280", "en_prompt": "who is the prime minister of india"}
-{"id": "alpaca-28277", "en_prompt": "In the given sentence, rewrite the underlined phrase so that it states the opposite.\n\nRecent evidence suggests that the Earth's climate is warming."}
-{"id": "alpaca-51593", "en_prompt": "Calculate the total number of hours if 6 people work for 8 hours each."}
-{"id": "alpaca-21922", "en_prompt": "Suggest a possible solution to reduce traffic congestion in a city"}
-{"id": "alpaca-50402", "en_prompt": "List three laptop accessories that a college student might need."}
-{"id": "dolly-11097", "en_prompt": "Is an avocado a fruit or a vegetable?"}
-{"id": "dolly-12201", "en_prompt": "Should generative AI be banned from the classroom ?"}
-{"id": "alpaca-37930", "en_prompt": "Compare and contrast the effects of a production-driven economy and a service-driven economy"}
-{"id": "alpaca-30110", "en_prompt": "Update the given sentence to improve readability.\n\nUsing the suggested tricks,you will be able to accomplish your desired result."}
-{"id": "alpaca-47012", "en_prompt": "Analyze the following text: \"She rode across the town in her car\".\n\n\"She rode across the town in her car\""}
-{"id": "dolly-12589", "en_prompt": "Chronological order of the Alien movie universe"}
-{"id": "dolly-14271", "en_prompt": "What is the difference between benefits and compensation?"}
-{"id": "alpaca-12825", "en_prompt": "Name a drink that is high in sugar content."}
-{"id": "alpaca-1672", "en_prompt": "Describe how data security can be maintained."}
-{"id": "alpaca-1720", "en_prompt": "Create a list of five items to buy in preparation for a hurricane."}
-{"id": "alpaca-35364", "en_prompt": "Rewrite the following sentence using the present perfect tense: I liked eating ice cream."}
-{"id": "alpaca-32894", "en_prompt": "Generate a Sudoku puzzle with one solution."}
-{"id": "alpaca-1247", "en_prompt": "Tell me a story about a lovable character."}
+{"id": "alpaca-18653", "en_prompt": "Write a one minute speech about the importance of reading"}
+{"id": "alpaca-16988", "en_prompt": "Combine given sentences in different ways while maintaining the same meaning.\n\nThe train was already late. It was raining cats and dogs."}
+{"id": "alpaca-44755", "en_prompt": "Complete the following sentence: \"Yesterday it was raining, so I put on my ____.\""}
+{"id": "alpaca-38639", "en_prompt": "Generate a story about a person who is stuck in the past."}
+{"id": "alpaca-47327", "en_prompt": "What is the probability of flipping 2 coins and getting 2 heads?"}
+{"id": "alpaca-49944", "en_prompt": "Design an algorithm for recognizing handwriting"}
+{"id": "alpaca-38932", "en_prompt": "See if the following mathematical expression is correct\n\n(8 + 3) - 5 X 2"}
+{"id": "alpaca-10973", "en_prompt": "Create a metaphor to explain the meaning of the term \"self-doubt\"."}
+{"id": "alpaca-26045", "en_prompt": "Summarize the phrase: \"GPT is a natural language processing architecture.\""}
+{"id": "alpaca-2120", "en_prompt": "Find the longest word in the sentence “Great minds think alike.”"}
+{"id": "alpaca-37980", "en_prompt": "Summarize the text in fewer than 10 sentences.\n\nSince the 1970s, education technology—which encompasses technologies used to support teaching and learning—has been an indispensable part of the classroom. From personal computers to interactive whiteboards to virtual learning platforms, education technology has transformed teaching and learning practices and provided new opportunities for students to create, collaborate and connect. However, despite the significant amount of investment in education technology, many of these enhancements haven’t had a substantial impact on student outcomes."}
+{"id": "alpaca-32413", "en_prompt": "Edit the poem to make it a sonnet.\n\nThe sky was so dark, and the stars so bright\nI almost fell as I looked up to the sky\nA storm is brewing, I can feel its might\nWhat wild secrets lurk up in the sky"}
+{"id": "alpaca-513", "en_prompt": "Create a listicle using the given data.\n\nTopic: Tips for Financial Planning\nList:\n1. Set a budget\n2. Track your spending\n3. Invest in stocks\n4. Pay off debts"}
+{"id": "alpaca-2286", "en_prompt": "Write a report on the economic competitiveness of the US"}
+{"id": "alpaca-7010", "en_prompt": "Summarize the article about the new computer system at the company.\n\nThe company recently invested in a new computer system, which was created to help automate manual processes and increase efficiency. This system uses artificial intelligence to interpret customer data, automatically generate reports, and automate customer billing processes."}
+{"id": "alpaca-213", "en_prompt": "Gather some recent data related to the increasing rates of unemployment."}
+{"id": "alpaca-29947", "en_prompt": "Figure out the final principle payment amount for a loan with the given details.\n\nPrinciple balance: $400,000, Interest rate: 3.5%, Length of loan: 20 years"}
+{"id": "dolly-8251", "en_prompt": "Where were the main branches of Gran Tavola?\n\nDuring the Middle Ages, the Gran Tavola (Italian for \"Great Table\") was the largest Sienese bank; it was one of the most powerful banks in Europe from 1255 to 1298. The Gran Tavola has been called \"the greatest bank of the thirteenth century\" as well as \"one of the largest commercial and banking enterprises in Europe\".\n\nThe main branches of the Gran Tavola during the mid-thirteenth century were in Pisa, Bologna, Genoa, Marseille, and Paris."}
+{"id": "alpaca-45436", "en_prompt": "Transform the following text into a web article format.\n\nBiologists are discovering more and more about the many ways that life exists around the world.  From tiny single-celled organisms to massive organisms like whales, everything is connected in the web of life."}
+{"id": "alpaca-42108", "en_prompt": "Imagine an alien visiting planet Earth for the first time. Describe what the alien might think of the planet."}
+{"id": "alpaca-18316", "en_prompt": "Edit the following paragraph and make it more interesting.\n\nToday I went to the park. It was a nice day. There were lots of people there."}
+{"id": "alpaca-13765", "en_prompt": "Create a regular expression that matches strings starting with \"Bob\" and ending with a number."}
+{"id": "alpaca-23408", "en_prompt": "Generate a problem statement for a mathematical equation.\n\nx + y = 10"}
+{"id": "alpaca-6995", "en_prompt": "Evaluate the following sentence for sentiment:\n\nThe pizza was terrible."}
+{"id": "alpaca-26882", "en_prompt": "You are given two sentences, combine them to create a new sentence.\n\nI'm curious. I want to learn more."}
+{"id": "alpaca-4275", "en_prompt": "Create a new setting for a story."}
+{"id": "alpaca-204", "en_prompt": "Rewrite the following sentence so that it is in active voice.\n\nThe problem is being solved by her."}
+{"id": "alpaca-25210", "en_prompt": "Let's have a conversation\n\nHi"}
+{"id": "alpaca-9865", "en_prompt": "Write an email for a job inquiry.\n\nCompany Name: Tesla\nPosition: Technical Support Engineer"}
+{"id": "dolly-11230", "en_prompt": "How do you potty train your bunny?"}
+{"id": "alpaca-51818", "en_prompt": "Come up with an original analogy about a crayon."}
+{"id": "alpaca-3399", "en_prompt": "Construct a proverb that encapsulates the concept of freedom."}
+{"id": "alpaca-9370", "en_prompt": "Given a dataset of customer purchase histories, identify the customer segment that is most likely to purchase again from the same store."}
+{"id": "alpaca-3025", "en_prompt": "Provide a sentence for the phrase \"learning curve\"."}
+{"id": "alpaca-44969", "en_prompt": "Explain how energy is produced from nuclear fuel."}
+{"id": "alpaca-14519", "en_prompt": "Describe the primary setting of the movie 'E.T'."}
+{"id": "alpaca-10749", "en_prompt": "Give an example of a valid English sentence that contains the word \"philanthropy\"."}
+{"id": "alpaca-22739", "en_prompt": "Brainstorm 3 creative ways to use an old tablecloth"}
+{"id": "alpaca-6604", "en_prompt": "Select a sentence from the paragraph and explain its usage.\n\nHe rushed to the store, which was closing in ten minutes."}
+{"id": "alpaca-5375", "en_prompt": "Is this technology more suitable for large enterprises or small businesses?\n\nTechnology: Cloud Computing"}
+{"id": "alpaca-15956", "en_prompt": "Compose a descriptive sentence about the given input.\n\nA rainbow"}
+{"id": "alpaca-44023", "en_prompt": "Can you give me a poem about love?"}
+{"id": "alpaca-31639", "en_prompt": "Give a positive spin to the given negative statement.\n\nJohn does not understand Math."}
+{"id": "alpaca-34466", "en_prompt": "Given a product description, craft a persuasive pitch that highlights the product's features.\n\nThis powerful laptop is designed with cutting-edge technology and state-of-the-art components. It has a bright, high-resolution display and long-lasting battery life perfect for a day of work or entertainment."}
+{"id": "alpaca-37683", "en_prompt": "Compose a piano piece from the following notes.\n\nA#-D-C#-E-F-A#-D-F-G-A"}
+{"id": "alpaca-5589", "en_prompt": "Write an algorithm to determine whether an integer is odd or even."}
+{"id": "alpaca-7587", "en_prompt": "Identify the main idea of the given statement and write it in one phrase.\n\nCats are intelligent animals and they often show it by problem-solving challenges."}
+{"id": "alpaca-28282", "en_prompt": "Re-write the sentence to emphasize its main point.\n\nI need to complete the assignment as soon as possible."}
+{"id": "alpaca-51598", "en_prompt": "Predict what the person in the following situation might do\n\nA student studying for an exam"}
+{"id": "alpaca-21929", "en_prompt": "Rewrite the following sentence in the form of an imperative command: Please keep your cellphones off during the lecture."}
+{"id": "alpaca-50399", "en_prompt": "Design a social media marketing campaign for a luxury car company."}
+{"id": "dolly-11095", "en_prompt": "List down some key points about the song \"El Rey\" from the given text\n\n\"El Rey\" (\"The King\") is a 1971 song by Mexican singer José Alfredo Jiménez. It is one of his best known songs and a Latin Grammy Hall of Fame recipient. The song is about \"a macho guy convinced his rough-and-tumble life doesn't preclude him from remaining the king among his peers\".\n\nA chart published by Record World credited \"El Rey\" as reaching number one in Mexico in 1974, a year after Jiménez's death."}
+{"id": "dolly-12205", "en_prompt": "What is pan genomics?"}
+{"id": "alpaca-37950", "en_prompt": "List the pros and cons of using electric cars."}
+{"id": "alpaca-30116", "en_prompt": "Group the given words into a compound noun.\n\nWords: sea, gull"}
+{"id": "alpaca-47007", "en_prompt": "Construct a sentence with the given words, attach punctuation at the end.\n\nWords: country, George, speak"}
+{"id": "dolly-12585", "en_prompt": "Name five water Pokemon."}
+{"id": "dolly-14261", "en_prompt": "What position did Andre Piters play in soccer, given the following paragraph?\n\nAndré Piters (18 January 1931 – 23 October 2014) was a Belgian footballer who played as a striker.\nPiters played club football for Herve, Standard Liège, Olympic de Charleroi and Fortuna 54.\nHe earned a total of 23 caps for Belgium between 1955 and 1961, four of which came in FIFA World Cup qualifying matches."}
+{"id": "alpaca-12831", "en_prompt": "Please translate this passage from English to French.\n\nI am learning French."}
+{"id": "alpaca-16722", "en_prompt": "Generate an appropriate response when an employee has tried his best to do a task but failed."}
+{"id": "alpaca-17204", "en_prompt": "Greet a customer with a personalized message.\n\nJohn"}
+{"id": "alpaca-35376", "en_prompt": "Format the following text into an html table.\n\nTable title | Col1 | Col2\nAhmed | 10 | 15\nBob | 20 | 25\nSamantha | 30 | 35\nJohn | 40 | 45"}
+{"id": "alpaca-3290", "en_prompt": "List five biological hypotheses that could explain the following phenomenon.\n\nThe increase in global temperature"}
+{"id": "alpaca-12477", "en_prompt": "Identify the type of noun in the sentence: \"I ate an apple.\""}
 {"id": "alpaca-46301", "en_prompt": "Generate a story combining the following words: lemon, whale, and butterfly."}
-{"id": "dolly-5813", "en_prompt": "How old is the largest living thing?"}
-{"id": "alpaca-49442", "en_prompt": "Tell me what the word 'adversity' means."}
-{"id": "alpaca-26352", "en_prompt": "Help the user create a password with the given criteria.\n\nAt least 10 characters\nUppercase letters\nLowercase letters\nSymbols"}
-{"id": "alpaca-1741", "en_prompt": "Add three multiplication facts to the list.\n\n2 x 3 = 6 \n7 x 7 = 49\n9 x 4 = 36"}
-{"id": "alpaca-6663", "en_prompt": "Read the following paragraph and answer a question about the words used in it.\n\nCognition refers to a set of mental processes that include attention, memory, language, problem-solving, perception, and decision-making. These processes are the basic mechanisms of the human mind and are essential for higher level thinking skills.\nQuestion: How many mental processes are mentioned in the paragraph?"}
-{"id": "alpaca-27469", "en_prompt": "Explain why Pavlovian conditioning does not always work."}
-{"id": "dolly-2316", "en_prompt": "Tell me whether these are famous as actors or authors: Russell Crowe, Tom Hanks, Jamie Lee Curtis, Joanne Woodward, Sara Jessica Parker, Tom Cruise, Alexander Dumas, JK Rowling, Ingrid Bergman, Grace Kelly,  Judi Dench, Kate Winslet, Jodie Foster, Doris Day, William Shakespeare, Jalal al-Din Muhammad Rumi"}
-{"id": "alpaca-10232", "en_prompt": "Classify the following tweet into two categories 'sad' and 'happy'.\n\nI passed my final exam!"}
-{"id": "alpaca-26614", "en_prompt": "Fix the following passage for grammar mistakes.\n\nA lot of people is thinking about the future and what the world will be looks like."}
+{"id": "dolly-5789", "en_prompt": "How do you play baseball"}
+{"id": "alpaca-49438", "en_prompt": "Generate a brochure describing a beachy vacation spot.\n\nMaldives"}
+{"id": "alpaca-26363", "en_prompt": "Form an adverb out of the word 'privacy'."}
+{"id": "alpaca-17411", "en_prompt": "Provide an example of Newton's second law of motion."}
+{"id": "alpaca-6667", "en_prompt": "Construct an argument in support of universal basic income."}
+{"id": "alpaca-27481", "en_prompt": "Summarize what a graphite pencil is composed of."}
+{"id": "dolly-2298", "en_prompt": "Name three dishes that were developed from conditions of scarcity or having to \"make do” with available materials or ingredients."}
+{"id": "alpaca-10231", "en_prompt": "Create a short description for a new device that you have invented."}
+{"id": "alpaca-26622", "en_prompt": "Draft a speech about the positives of renewable energy."}
 {"id": "alpaca-7124", "en_prompt": "Generate a metaphor to describe the feeling of being anxious."}
-{"id": "alpaca-20954", "en_prompt": "Add 3 more words to the following list to make it an antonym of 'large'.\n\nBig, huge"}
-{"id": "alpaca-49235", "en_prompt": "Given two strings, return a combination of both strings while maintaining the format of the input strings.\n\nString 1: hello\nString 2: world"}
-{"id": "alpaca-32287", "en_prompt": "Rearrange the given text in alphabetical order.\n\nfox vegetable orange carrot"}
-{"id": "alpaca-31715", "en_prompt": "Create a metaphor for fear. Output the metaphor."}
-{"id": "dolly-2684", "en_prompt": "From a 10-year old child's perspective, write a short summary of a visit to the Rijksmuseum for the Vermeer exhibition."}
-{"id": "alpaca-7178", "en_prompt": "Greet the customer in the given context\n\nContext: The customer is asking for help with an order."}
+{"id": "alpaca-20963", "en_prompt": "Rank the following countries in terms of population size from largest to smallest.\n\nJapan, India, USA"}
+{"id": "alpaca-49231", "en_prompt": "Combine two texts and transform them into a persuasive speech.\n\nText 1: Climate change is happening. \nText 2: We need to take action now."}
+{"id": "alpaca-32296", "en_prompt": "Describe the economic benefits of providing free healthcare."}
+{"id": "alpaca-31728", "en_prompt": "Compile a list of all the verbs included in the text\n\nThe old man ran to the store and sat down in the chair"}
+{"id": "dolly-2667", "en_prompt": "Which of the following is a type of fruit: cucumber, broccoli, orange, or apple?"}
+{"id": "alpaca-7177", "en_prompt": "Explain the difference between modal and non-modal dialogs."}
 {"id": "dolly-9393", "en_prompt": "Does having a real cork, artificial cork, or a screw-top have any impact on the quality of a bottle of wine?"}
-{"id": "alpaca-49896", "en_prompt": "Provide a statistic about global warming."}
-{"id": "dolly-2685", "en_prompt": "What are the four major tournaments for the Professional Golfers Association?"}
-{"id": "alpaca-7606", "en_prompt": "Create a magnetic headline to advertise the following product.\n\nInstant coffee"}
-{"id": "alpaca-42857", "en_prompt": "Construct a question-answering system that answers questions related to the U.S. election."}
+{"id": "alpaca-49893", "en_prompt": "Explain the cause of the dust bowl in the 1930s."}
+{"id": "dolly-2668", "en_prompt": "When was the Tesla Model 3 unit one million sold?\n\nThe Tesla Model 3 became the world's all-time best-selling electric car in early 2020, and in June 2021 became the first electric car to pass 1 million global sales. Together with other emerging automotive technologies such as autonomous driving, connected vehicles and shared mobility, electric cars form a future mobility vision called Autonomous, Connected, Electric and Shared (ACES) Mobility."}
+{"id": "alpaca-7608", "en_prompt": "Construct a request for an assistant to do an action."}
+{"id": "alpaca-42865", "en_prompt": "Given an input sentence, insert a pronoun that directs the sentence towards the user.\n\nI wake up early every morning."}
+{"id": "alpaca-31376", "en_prompt": "List the differences between the Rich and the Poor."}
+{"id": "alpaca-36994", "en_prompt": "Identify 3 benefits of using a cloud platform for data storage and computation."}
+{"id": "alpaca-29950", "en_prompt": "What are the applicable taxes for large businesses in Canada?"}

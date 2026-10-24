@@ -49,8 +49,11 @@ def n_tokens(tok, user, assistant=None):
     msgs = [{"role": "user", "content": user}]
     if assistant is not None:
         msgs.append({"role": "assistant", "content": assistant})
-    return len(tok.apply_chat_template(msgs, tokenize=True, add_generation_prompt=assistant is None,
-                                       date_string=DATE))
+    out = tok.apply_chat_template(msgs, tokenize=True, add_generation_prompt=assistant is None,
+                                  date_string=DATE)
+    if hasattr(out, "keys"):  # transformers v5 returns a dict (BatchEncoding), v4 a list
+        out = out["input_ids"]
+    return len(out)
 
 
 def write_jsonl(path, rows):
@@ -75,6 +78,8 @@ def main():
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     tok = AutoTokenizer.from_pretrained(a.tokenizer)
+    probe = n_tokens(tok, "hello")
+    assert probe > 5, f"token counting is broken (got {probe} tokens for 'hello')"
 
     hi = {r["id"]: r for r in load_lang("hi")}
     en = {r["id"]: r for r in load_lang("en")}

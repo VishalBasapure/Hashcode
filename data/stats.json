@@ -3,7 +3,7 @@
   "en_rows": 67017,
   "joined": 67017,
   "hi_script_ok": 60372,
-  "too_long_skipped": 0,
+  "too_long_skipped": 1049,
   "train_hi.jsonl": 3000,
   "val_hi.jsonl": 300,
   "replay_en.jsonl": 300,

@@ -42,7 +42,10 @@ def chat(tok, user, assistant=None, gen=False):
     msgs = [{"role": "user", "content": user}]
     if assistant is not None:
         msgs.append({"role": "assistant", "content": assistant})
-    return list(tok.apply_chat_template(msgs, tokenize=True, add_generation_prompt=gen, date_string=DATE))
+    out = tok.apply_chat_template(msgs, tokenize=True, add_generation_prompt=gen, date_string=DATE)
+    if hasattr(out, "keys"):  # transformers v5 returns a dict (BatchEncoding), v4 a list
+        out = out["input_ids"]
+    return list(out)
 
 
 def find_offset(tok):
@@ -57,8 +60,10 @@ def lm_example(tok, user, resp, max_len):
     prompt = chat(tok, user, gen=True)
     full = chat(tok, user, resp)
     assert full[:len(prompt)] == prompt, "chat template prefix mismatch: label masking would be wrong"
-    full = full[:max_len]
-    labels = ([-100] * len(prompt) + full[len(prompt):])[:len(full)]
+    if len(full) > max_len:
+        raise SystemExit(f"Row is {len(full)} tokens (> {max_len}). Re-run data/prepare.py with the fixed "
+                         "length filter; never train on truncated rows.")
+    labels = [-100] * len(prompt) + full[len(prompt):]
     return full, labels
 
 
