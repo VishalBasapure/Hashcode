@@ -1,1179 +1,421 @@
-# ============================================================
-#  app.py — Karnataka Crime Risk Prediction Dashboard
-#  Integrates Model A (DCVI) + Model B (Bengaluru hotspot)
-#
-#  Install:
-#    pip install streamlit pandas numpy scikit-learn folium
-#               streamlit-folium plotly joblib
-#
-#  Run:
-#    streamlit run app.py
-#
-#  Files needed:
-#    data/output_data/dcvi_2024_predictions.csv
-#    data/processed/karnataka_model_ready.csv
-#    models/dcvi_model.pkl
-#    models/dcvi_scalers.pkl
-#    models/district_map.pkl
-#    outputs-maps/karnataka_crime_2024_fixed.html   (run kar_map.py first)
-#    police_data/kml_extracted_1.csv   (police outposts)
-#    police_data/kml_extracted_2.csv   (police stations)
-# ============================================================
-
-import streamlit as st
-import streamlit.components.v1 as components
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-import plotly.express as px
-import folium
-from streamlit_folium import st_folium
-import warnings, os, json
-warnings.filterwarnings('ignore')
-
-st.set_page_config(
-    page_title="Karnataka Crime Risk Dashboard",
-    page_icon="🔴",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-st.markdown("""
-<style>
-html, body, [class*="css"] { font-family: 'Inter', 'Segoe UI', sans-serif; font-size: 16px; }
-.stApp { background: #FFFFFF; }
-.block-container { padding-top: 1.5rem; padding-bottom: 1rem; }
-
-/* ── Global text ── */
-p, li, span, div, label { font-size: 16px !important; }
-h1 { font-size: 2.2rem !important; font-weight: 700 !important; color: #111827 !important; }
-h2 { font-size: 1.7rem !important; font-weight: 700 !important; color: #111827 !important; }
-h3 { font-size: 1.4rem !important; font-weight: 600 !important; color: #111827 !important; }
-
-/* ── Selectbox / radio labels ── */
-[data-testid="stSelectbox"] label,
-[data-testid="stRadio"] label { font-size: 15px !important; font-weight: 600; color: #374151 !important; }
-[data-testid="stSelectbox"] div[data-baseweb="select"] { font-size: 15px !important; }
-
-/* ── Metric cards — clean, flat, light ── */
-[data-testid="metric-container"] {
-    background: #F9FAFB;
-    border: 1px solid #E5E7EB;
-    border-radius: 10px;
-    padding: 16px 20px !important;
-    transition: box-shadow 0.2s ease;
-}
-[data-testid="metric-container"]:hover {
-    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-}
-[data-testid="metric-container"] label {
-    font-size: 12px !important;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #6B7280 !important;
-}
-[data-testid="metric-container"] [data-testid="stMetricValue"] {
-    font-size: 30px !important;
-    font-weight: 700;
-    color: #111827 !important;
-}
-[data-testid="metric-container"] [data-testid="stMetricDelta"] {
-    font-size: 14px !important;
-}
-
-/* ── Risk badge — simple rounded chip ── */
-.badge {
-    display: inline-block;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 14px !important;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-}
-.badge-HIGH   { background: #FEE2E2; color: #B91C1C; }
-.badge-MEDIUM { background: #FEF3C7; color: #92400E; }
-.badge-LOW    { background: #D1FAE5; color: #065F46; }
-
-/* ── Section headings ── */
-.sec-head {
-    font-size: 13px !important;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #6B7280 !important;
-    margin-bottom: 10px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #E5E7EB;
-}
-
-/* ── Info box ── */
-.info-box {
-    background: #EFF6FF;
-    border-left: 3px solid #3B82F6;
-    border-radius: 0 8px 8px 0;
-    padding: 12px 18px;
-    font-size: 14px !important;
-    color: #1E3A8A !important;
-    margin-bottom: 14px;
-}
-
-/* ── Dataframe ── */
-[data-testid="stDataFrame"] { border: 1px solid #E5E7EB !important; border-radius: 8px; }
-[data-testid="stDataFrame"] thead th {
-    background: #F9FAFB !important;
-    color: #374151 !important;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    font-size: 12px !important;
-}
-
-/* ── Sidebar — clean light panel ── */
-[data-testid="stSidebar"] { background: #F9FAFB; border-right: 1px solid #E5E7EB; }
-[data-testid="stSidebar"] * { color: #1F2937 !important; font-size: 16px !important; }
-[data-testid="stSidebar"] [data-testid="stRadio"] label { font-size: 16px !important; }
-[data-testid="stSidebar"] hr { border-color: #E5E7EB !important; }
-
-/* ════════════════════════════════════════════════════════════
-   PAGE HEADER — single source of truth for all 4 pages
-   ════════════════════════════════════════════════════════════ */
-.page-head-table {
-    margin-bottom: 16px;
-}
-.page-head-tag-row { margin-bottom: 6px; }
-.page-tag {
-    display: inline-block;
-    background: #EEF2FF;
-    color: #4338CA !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.06em;
-    padding: 4px 12px;
-    border-radius: 6px;
-    line-height: 1.4 !important;
-}
-.page-title {
-    display: block !important;
-    font-size: 28px !important;
-    font-weight: 700 !important;
-    color: #111827 !important;
-    letter-spacing: -0.01em !important;
-    line-height: 1.3 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* ════════════════════════════════════════════════════════════
-   DISTRICT SUMMARY CARD — Police Resource Planning page
-   Simple white card, soft shadow, no heavy borders/ornamentation
-   ════════════════════════════════════════════════════════════ */
-.dossier-wrap {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
-    border-radius: 14px;
-    padding: 0;
-    margin-bottom: 22px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    overflow: hidden;
-}
-.dossier-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 22px 28px 18px 28px;
-    border-bottom: 1px solid #F3F4F6;
-}
-.dossier-title {
-    font-size: 24px !important;
-    font-weight: 700;
-    color: #111827 !important;
-    margin: 0;
-}
-.dossier-subtitle {
-    font-size: 13px !important;
-    color: #6B7280 !important;
-    margin-top: 4px;
-}
-.dossier-seal {
-    font-weight: 700;
-    font-size: 13px !important;
-    letter-spacing: 0.04em;
-    padding: 7px 16px;
-    border-radius: 20px;
-    white-space: nowrap;
-}
-.seal-HIGH   { background: #FEE2E2; color: #B91C1C; }
-.seal-MEDIUM { background: #FEF3C7; color: #92400E; }
-.seal-LOW    { background: #D1FAE5; color: #065F46; }
-
-.ledger-row {
-    display: flex;
-    border-bottom: 1px solid #F3F4F6;
-    padding: 16px 28px;
-    transition: background 0.15s ease;
-}
-.ledger-row:hover { background: #FAFAFA; }
-.ledger-row:last-child { border-bottom: none; }
-.ledger-label {
-    font-size: 13px !important;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #9CA3AF !important;
-    width: 220px;
-    flex-shrink: 0;
-    padding-top: 3px;
-}
-.ledger-value {
-    font-size: 22px !important;
-    font-weight: 700;
-    color: #111827 !important;
-}
-.ledger-value-sub {
-    font-size: 12px !important;
-    color: #9CA3AF !important;
-    margin-top: 2px;
-}
-
-.dossier-divider {
-    font-size: 12px !important;
-    font-weight: 700;
-    color: #9CA3AF !important;
-    text-align: left;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    margin: 28px 0 16px 0;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #E5E7EB;
-}
-
-.directive-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
-    border-left: 3px solid #3B82F6;
-    border-radius: 0 10px 10px 0;
-    padding: 16px 20px;
-    margin-bottom: 10px;
-}
-.directive-num {
-    font-size: 11px !important;
-    font-weight: 700;
-    color: #9CA3AF !important;
-    letter-spacing: 0.06em;
-}
-.directive-title {
-    font-size: 16px !important;
-    font-weight: 700;
-    color: #111827 !important;
-    margin: 3px 0 7px 0;
-}
-.directive-body {
-    font-size: 14px !important;
-    color: #4B5563 !important;
-    line-height: 1.7;
-}
-
-.priority-strip {
-    font-size: 13px !important;
-    color: #4B5563 !important;
-    background: #F9FAFB;
-    border: 1px solid #E5E7EB;
-    border-radius: 8px;
-    padding: 10px 16px;
-    margin-bottom: 14px;
-}
-
-/* ════════════════════════════════════════════════════════════
-   ANIMATED ODOMETER — rolling-digit counters for district stats
-   ════════════════════════════════════════════════════════════ */
-.odometer-wrap {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-}
-.odo-card {
-    flex: 1;
-    min-width: 150px;
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
-    border-radius: 12px;
-    padding: 16px 18px;
-}
-.odo-label {
-    font-size: 12px !important;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #9CA3AF !important;
-    margin-bottom: 6px;
-}
-.odo-value {
-    font-size: 30px !important;
-    font-weight: 700;
-    color: #111827 !important;
-    font-variant-numeric: tabular-nums;
-}
-.odo-sub {
-    font-size: 11px !important;
-    color: #9CA3AF !important;
-    margin-top: 2px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
-@st.cache_data
-def load_data():
-    pred     = pd.read_csv("data/output_data/dcvi_2024_predictions.csv")
-    model_df = pd.read_csv("data/processed/karnataka_model_ready.csv")
-    dist_names   = sorted(pred['district'].unique())
-    dist_num_map = dict(enumerate(dist_names))
-
-    pred['change_pct']       = ((pred['pred_crimes_2024'] - pred['actual_2023'])
-                                 / pred['actual_2023'] * 100).round(1)
-    pred['pred_crimes_2025'] = (pred['pred_crimes_2024']
-                                 * (1 + pred['change_pct'] / 100)).round(0)
-
-    p33 = np.percentile(pred['dcvi_score'], 33)
-    p66 = np.percentile(pred['dcvi_score'], 66)
-    pred['risk'] = pd.cut(pred['dcvi_score'], bins=[0, p33, p66, 100],
-                          labels=['LOW','MEDIUM','HIGH'],
-                          include_lowest=True).astype(str)
-
-    d23  = model_df[model_df['year'] == 2023].copy()
-    d23['district_name'] = d23['district'].map(dist_num_map)
-    cats = d23[['district_name','crime_against_women','crime_against_children',
-                'violent_crime','cyber_crime','other_crime']].set_index('district_name')
-    pred = pred.merge(cats, left_on='district', right_index=True, how='left')
-
-    hist = {}
-    for dnum, dn in dist_num_map.items():
-        rows = model_df[model_df['district']==dnum].sort_values('year')
-        hist[dn] = rows[['year','total_crime']].set_index('year')['total_crime'].to_dict()
-
-    return pred, hist, p33, p66
-
-
-def load_metrics():
-    default = {'r2': 0.776, 'mae': 205}
-    if not os.path.exists('data/output_data/dcvi_metrics.json'):
-        return default
-    try:
-        with open('data/output_data/dcvi_metrics.json', 'r', encoding='utf-8') as f:
-            metrics = json.load(f)
-        return {
-            'r2': float(metrics.get('r2', default['r2'])),
-            'mae': float(metrics.get('mae', default['mae']))
-        }
-    except Exception:
-        return default
-
-pred_df, hist_data, P33, P66 = load_data()
-metrics = load_metrics()
-
-COORDS = {
-    "bagalkot":[16.18,75.69],"ballari":[15.15,76.93],
-    "belagavi city":[15.85,74.50],"belagavi district":[15.70,74.90],
-    "bengaluru city":[12.97,77.59],"bengaluru district":[13.10,77.45],
-    "bidar":[17.91,77.52],"chamarajnagar":[11.92,76.94],
-    "chikkaballapura":[13.44,77.73],"chikkamagaluru":[13.32,75.77],
-    "chitradurga":[14.23,76.40],"dakshina kannada":[12.84,74.86],
-    "davanagere":[14.46,75.92],"dharwad":[15.46,75.01],
-    "gadag":[15.43,75.63],"hassan":[13.00,76.10],
-    "haveri":[14.80,75.40],"hubballi dharwad city":[15.36,75.12],
-    "k.g.f.":[12.97,78.27],"k.railways":[15.31,75.71],
-    "kalaburgi":[17.33,76.83],"kalaburgi city":[17.40,76.90],
-    "kodagu":[12.42,75.74],"kolar":[13.14,78.13],
-    "koppal":[15.35,76.15],"mandya":[12.52,76.90],
-    "mangaluru city":[12.91,74.85],"mysuru city":[12.30,76.65],
-    "mysuru district":[12.20,76.40],"raichur":[16.20,77.35],
-    "ramanagara":[12.72,77.28],"shimoga":[13.93,75.57],
-    "tumakuru":[13.34,77.10],"udupi":[13.34,74.75],
-    "uttara kannada":[14.79,74.13],"vijayanagara":[15.32,76.46],
-    "vijayapura":[16.83,75.71],"yadgiri":[16.77,77.14],
-}
-
-RISK_CLR = {'HIGH':'#DC2626','MEDIUM':'#D97706','LOW':'#16A34A'}
-
-
-def render_odometer_card(district, case_id, risk, dcvi, pred_crimes, actual_2023,
-                          stations, outposts, coverage, gap, gap_clr):
-    """Render the district summary card with JS-animated rolling-digit counters.
-    Each numeric value counts up/down from its previous value whenever the
-    selected district changes, using requestAnimationFrame for a smooth feel."""
-    risk_bg = {'HIGH': '#FEE2E2', 'MEDIUM': '#FEF3C7', 'LOW': '#D1FAE5'}.get(risk, '#F3F4F6')
-    risk_fg = {'HIGH': '#B91C1C', 'MEDIUM': '#92400E', 'LOW': '#065F46'}.get(risk, '#374151')
-
-    html = f"""
-    <div id="odo-root" style="font-family:'Inter','Segoe UI',sans-serif;">
-      <div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;
-                  box-shadow:0 1px 3px rgba(0,0,0,0.04);overflow:hidden;">
-
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;
-                    padding:22px 28px 18px 28px;border-bottom:1px solid #F3F4F6;">
-          <div>
-            <p style="font-size:24px;font-weight:700;color:#111827;margin:0;">{district.title()}</p>
-            <p style="font-size:13px;color:#6B7280;margin-top:4px;">
-              CASE REF {case_id} &middot; REVIEW YEAR 2024 &middot; SOURCE: NCRB KARNATAKA</p>
-          </div>
-          <div style="background:{risk_bg};color:{risk_fg};font-weight:700;font-size:13px;
-                      letter-spacing:0.04em;padding:7px 16px;border-radius:20px;white-space:nowrap;">
-            {risk} RISK
-          </div>
-        </div>
-
-        <div class="ledger-row" style="display:flex;border-bottom:1px solid #F3F4F6;padding:16px 28px;">
-          <div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;
-                      color:#9CA3AF;width:220px;flex-shrink:0;padding-top:3px;">Vulnerability Index</div>
-          <div>
-            <div style="font-size:22px;font-weight:700;color:#111827;">
-              <span class="odo" data-target="{dcvi}" data-decimals="1">0</span> / 100
-            </div>
-            <div style="font-size:12px;color:#9CA3AF;margin-top:2px;">DCVI composite score</div>
-          </div>
-        </div>
-
-        <div class="ledger-row" style="display:flex;border-bottom:1px solid #F3F4F6;padding:16px 28px;">
-          <div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;
-                      color:#9CA3AF;width:220px;flex-shrink:0;padding-top:3px;">Crime Load</div>
-          <div>
-            <div style="font-size:22px;font-weight:700;color:#111827;">
-              <span class="odo" data-target="{pred_crimes}" data-decimals="0">0</span>
-              <span style="font-size:14px;font-weight:400;color:#9CA3AF;">predicted 2024</span>
-            </div>
-            <div style="font-size:12px;color:#9CA3AF;margin-top:2px;">
-              <span class="odo" data-target="{actual_2023}" data-decimals="0">0</span> recorded in 2023</div>
-          </div>
-        </div>
-
-        <div class="ledger-row" style="display:flex;border-bottom:1px solid #F3F4F6;padding:16px 28px;">
-          <div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;
-                      color:#9CA3AF;width:220px;flex-shrink:0;padding-top:3px;">Deployed Infrastructure</div>
-          <div>
-            <div style="font-size:22px;font-weight:700;color:#111827;">
-              <span class="odo" data-target="{stations}" data-decimals="0">0</span> stations
-              &nbsp;+&nbsp;
-              <span class="odo" data-target="{outposts}" data-decimals="0">0</span> outposts
-            </div>
-            <div style="font-size:12px;color:#9CA3AF;margin-top:2px;">
-              Source: KGIS police station &amp; outpost registry</div>
-          </div>
-        </div>
-
-        <div class="ledger-row" style="display:flex;border-bottom:1px solid #F3F4F6;padding:16px 28px;">
-          <div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;
-                      color:#9CA3AF;width:220px;flex-shrink:0;padding-top:3px;">Coverage Index</div>
-          <div>
-            <div style="font-size:22px;font-weight:700;color:#111827;">
-              <span class="odo" data-target="{coverage}" data-decimals="1">0</span> / 100
-            </div>
-            <div style="font-size:12px;color:#9CA3AF;margin-top:2px;">
-              Infrastructure relative to crime load &middot; higher is better</div>
-          </div>
-        </div>
-
-        <div class="ledger-row" style="display:flex;padding:16px 28px;">
-          <div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;
-                      color:#9CA3AF;width:220px;flex-shrink:0;padding-top:3px;">Resource Gap Score</div>
-          <div>
-            <div style="font-size:22px;font-weight:700;color:{gap_clr};">
-              <span class="odo" data-target="{gap}" data-decimals="1" style="color:{gap_clr}">0</span> / 100
-            </div>
-            <div style="font-size:12px;color:#9CA3AF;margin-top:2px;">
-              Priority for intervention &middot; higher demands faster action</div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <script>
-    (function() {{
-      const els = document.querySelectorAll('.odo');
-      const duration = 900;
-      els.forEach(function(el) {{
-        const target = parseFloat(el.getAttribute('data-target'));
-        const decimals = parseInt(el.getAttribute('data-decimals'));
-        const start = 0;
-        const startTime = performance.now();
-
-        function tick(now) {{
-          const elapsed = now - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-          const eased = 1 - Math.pow(1 - progress, 3);  // ease-out cubic
-          const value = start + (target - start) * eased;
-          el.textContent = value.toLocaleString('en-IN', {{
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals
-          }});
-          if (progress < 1) {{
-            requestAnimationFrame(tick);
-          }}
-        }}
-        requestAnimationFrame(tick);
-      }});
-    }})();
-    </script>
-    """
-    components.html(html, height=560, scrolling=False)
-    """Render the page title + form-number tag stacked vertically (tag on its
-    own line above the title). This guarantees no overlap regardless of title
-    length or viewport width — there is no shared line-box for the two
-    elements to collide on."""
-    st.markdown(
-        f"<div class='page-head-table'>"
-        f"<div class='page-head-tag-row'><span class='page-tag'>{form_tag}</span></div>"
-        f"<span class='page-title'>{title}</span>"
-        f"</div>",
-        unsafe_allow_html=True
-    )
-
-# ── Police resource planning logic lives in its own module ────────────────────
-# (KGIS district-code mapping, alias resolution, coverage/gap scoring, and the
-# rule-based recommendation engine). app.py only renders; it doesn't clean data.
-from police_resource_engine import (
-    load_police_data,
-    compute_coverage,
-    build_recommendations,
-)
-
-
-
-# ── Sidebar ──────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("""
-    <div style='text-align:center;padding:18px 0 10px'>
-        <div style='display:inline-flex;align-items:center;justify-content:center;
-                    background:#3B82F6;border-radius:14px;
-                    width:54px;height:54px;font-size:22px;
-                    font-weight:700;color:#FFFFFF'>KA</div>
-        <div style='font-size:20px;font-weight:700;
-                    margin-top:12px;color:#111827;letter-spacing:-0.01em'>
-            Karnataka Crime<br>Risk Dashboard
-        </div>
-        <div style='font-size:11px;font-weight:600;
-                    letter-spacing:0.08em;color:#9CA3AF;margin-top:4px'>
-            DISTRICT INTELLIGENCE SYSTEM
-        </div>
-    </div>
-    <hr style='border-color:#E5E7EB;margin:8px 0'>
-    """, unsafe_allow_html=True)
-
-    page = st.radio(
-        "nav", label_visibility="collapsed",
-        options=["📍  District Prediction",
-                 "🗺️  Bengaluru Hotspot Map",
-                 "📊  All Districts Ranking",
-                 "🚔  Police Resource Planning"]
-    )
-
-    st.markdown("""
-    <hr style='border-color:#E5E7EB;margin:12px 0 8px'>
-    <div style='font-size:15px;line-height:2.2'>
-        <b>Model A</b> — DCVI Prediction<br>
-        <b>Model B</b> — KDE Hotspot Map<br>
-        <b>Data</b> — NCRB Karnataka 2020–23<br>
-        <b>R2</b> = {r2:.3f} | <b>MAE</b> = {mae:.0f}<br>
-        <b>Algorithm</b> — Random Forest
-    </div>
-    """.format(r2=metrics['r2'], mae=metrics['mae']), unsafe_allow_html=True)
-
-
-# ════════════════════════════════════════════════════════════
-#  PAGE 1 — DISTRICT PREDICTION
-# ════════════════════════════════════════════════════════════
-if page == "📍  District Prediction":
-
-    page_header("District Crime Risk Prediction", "FORM&nbsp;DCVI-01")
-    st.markdown("<div class='info-box'>Select a district and year to see DCVI score, "
-                "risk level, predicted crime count, and category breakdown.</div>",
-                unsafe_allow_html=True)
-
-    c1, c2 = st.columns([4, 1])
-    with c1:
-        district = st.selectbox("Select district",
-                                sorted(pred_df['district'].tolist()),
-                                format_func=lambda x: x.title())
-    with c2:
-        year = st.selectbox("Year", [2024, 2025])
-
-    row         = pred_df[pred_df['district'] == district].iloc[0]
-    risk        = str(row['risk'])
-    pred_crimes = int(row['pred_crimes_2024'] if year == 2024 else row['pred_crimes_2025'])
-    change_pct  = float(row['change_pct'])
-    arrow       = "↑" if change_pct > 0 else "↓"
-
-    # Metric row
-    m1, m2, m3, m4, m5 = st.columns(5)
-    m1.metric("DCVI Score",          f"{row['dcvi_score']:.1f} / 100")
-    m2.metric(f"Predicted {year}",    f"{pred_crimes:,}")
-    m3.metric("Actual 2023",          f"{int(row['actual_2023']):,}")
-    m4.metric("Change vs 2023",
-              f"{arrow} {abs(change_pct):.1f}%",
-              delta=f"{change_pct:+.1f}%",
-              delta_color="inverse" if change_pct > 0 else "normal")
-    with m5:
-        st.markdown(
-            f"<div style='margin-top:8px'>"
-            f"<p style='font-size:12px !important;"
-            f"font-weight:700;text-transform:uppercase;letter-spacing:.04em;"
-            f"color:#9CA3AF;margin-bottom:14px'>RISK LEVEL</p>"
-            f"<span class='badge badge-{risk}'>{risk}</span></div>",
-            unsafe_allow_html=True
-        )
-
-    st.markdown("<hr style='margin:18px 0 14px'>", unsafe_allow_html=True)
-
-    left, right = st.columns([1, 1], gap="large")
-
-    with left:
-        st.markdown("<p class='sec-head'>Karnataka district map</p>",
-                    unsafe_allow_html=True)
-
-        m = folium.Map(location=[14.8, 76.5], zoom_start=6,
-                       tiles="CartoDB positron")
-
-        for _, r in pred_df.iterrows():
-            d = str(r['district'])
-            if d not in COORDS: continue
-            lat, lon = COORDS[d]
-            rc  = RISK_CLR.get(str(r['risk']), '#888')
-            sel = (d == district)
-            folium.CircleMarker(
-                location=[lat, lon],
-                radius=max(9, r['dcvi_score'] / 7.5),
-                color='#1e1e2e' if sel else rc,
-                fill=True, fill_color=rc,
-                fill_opacity=1.0 if sel else 0.72,
-                weight=4 if sel else 1.5,
-                tooltip=folium.Tooltip(
-                    f"<b>{d.title()}</b><br>DCVI: {r['dcvi_score']:.1f}<br>Risk: {r['risk']}",
-                    sticky=True)
-            ).add_to(m)
-            if sel:
-                folium.Marker([lat+0.18, lon],
-                    icon=folium.DivIcon(
-                        html=f"<div style='font-size:25px;font-weight:700;"
-                             f"color:#1e1e2e'>{d.title()}</div>",
-                        icon_size=(160,20))
-                ).add_to(m)
-
-        st_folium(m, height=880, use_container_width=True, returned_objects=[])
-
-    with right:
-        st.markdown("<p class='sec-head'>Crime category breakdown — 2023 actual</p>",
-                    unsafe_allow_html=True)
-
-        cats   = ['Women','Children','Cyber']
-        values = [int(row.get('crime_against_women',0)),
-                  int(row.get('crime_against_children',0)),
-                  int(row.get('cyber_crime',0)),]
-        clrs   = ['#DC2626','#D97706','#16A34A']
-
-        fig_bar = go.Figure(go.Bar(
-            x=cats, y=values, marker_color=clrs, marker_line_width=0,
-            text=[f"{v:,}" for v in values],
-            textposition='outside', textfont=dict(size=13, color='#111827')
-        ))
-        fig_bar.update_layout(
-            margin=dict(t=20,b=10,l=10,r=10), height=400,
-            showlegend=False, bargap=0.55,
-            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-            yaxis=dict(showgrid=True, gridcolor='#F3F4F6',
-                       tickfont=dict(size=13,color='#9CA3AF')),
-            xaxis=dict(showgrid=False, tickfont=dict(size=16,color='#111827'))
-        )
-        st.plotly_chart(fig_bar, use_container_width=True, key='cat_bar')
-
-        st.markdown("<p class='sec-head'>Crime trend 2020–2025</p>",
-                    unsafe_allow_html=True)
-
-        hist     = hist_data.get(district, {})
-        yrs_act  = [2020,2021,2022,2023]
-        act_vals = [hist.get(y) for y in yrs_act]
-        yrs_pred = [2023,2024,2025]
-        prd_vals = [int(row['actual_2023']),
-                    int(row['pred_crimes_2024']),
-                    int(row['pred_crimes_2025'])]
-
-        fig_ln = go.Figure()
-        fig_ln.add_trace(go.Scatter(
-            x=yrs_act, y=act_vals, mode='lines+markers', name='Actual',
-            line=dict(color='#16A34A', width=3),
-            marker=dict(size=8, color='#16A34A', line=dict(color='#FFFFFF',width=2))
-        ))
-        fig_ln.add_trace(go.Scatter(
-            x=yrs_pred, y=prd_vals, mode='lines+markers', name='Predicted',
-            line=dict(color='#DC2626', width=3, dash='dash'),
-            marker=dict(size=8, color='#DC2626', line=dict(color='#FFFFFF',width=2))
-        ))
-        fig_ln.add_vline(x=2023, line_dash='dot', line_color='#D1D5DB',
-                         annotation_text='Prediction starts',
-                         annotation_font_size=20, annotation_font_color='#9CA3AF',
-                         annotation_position='top right')
-        fig_ln.update_layout(
-            margin=dict(t=10,b=10,l=10,r=10), height=400,
-            showlegend=True,
-            legend=dict(orientation='h', y=1.12, x=0,
-                        font=dict(size=15), bgcolor='rgba(0,0,0,0)'),
-            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-            yaxis=dict(showgrid=True, gridcolor='#F3F4F6',
-                       tickfont=dict(size=13,color='#9CA3AF')),
-            xaxis=dict(showgrid=False, dtick=1,
-                       tickfont=dict(size=14,color='#111827'))
-        )
-        st.plotly_chart(fig_ln, use_container_width=True, key='trend_line')
-
-
-# ════════════════════════════════════════════════════════════
-#  PAGE 2 — BENGALURU HOTSPOT MAP
-# ════════════════════════════════════════════════════════════
-elif page == "🗺️  Bengaluru Hotspot Map":
-
-    page_header("Bengaluru Hotspot Survey", "FORM&nbsp;DCVI-02")
-    st.markdown(
-        "<div class='info-box'>Model B — KDE (Kernel Density Estimation) on 6,303 real "
-        "GPS crime incidents. Red = highest crime density. Use layer control (top-right) "
-        "to toggle heatmap and individual crime markers.</div>",
-        unsafe_allow_html=True
-    )
-
-    # Try all filenames the user might have created
-    possible = [
-        "outputs-maps/bengaluru_hotspot_all.html",
-        "outputs-maps/bengaluru_hotspot_murder.html",
-        "outputs-maps/karnataka_crime_2024_fixed.html",
-        "outputs-maps/karnataka_crime_2024.html",
-        "outputs-maps/final_crime_heatmap.html",
-        "outputs-maps/bengaluru_hotspot_all_crimes.html",
-    ]
-
-    html_file = next((f for f in possible if os.path.exists(f)), None)
-
-    if html_file:
-        with open(html_file, "r", encoding="utf-8") as f:
-            html_content = f.read()
-        st.success(f"✅ Loaded: **{html_file}**")
-        st.components.v1.html(html_content, height=650, scrolling=False)
+"""BhashaJEPA demo: the same prompt answered by P1 (original), B1 (naive CFT) and J1 (BhashaJEPA).
+
+One base model in memory; B1 and J1 are LoRA adapters switched on/off (P1 = adapters off).
+
+  pip install gradio peft transformers accelerate deep-translator   (deep-translator: optional, online translation)
+  python demo/app.py --base <Llama-3.2-1B-Instruct path> --b1 models/B1_s0 --j1 models/J1_s0 --results results/main
+Add --share for a public link.
+"""
+import argparse, csv, glob, html, json, math, os, re, time
+
+import gradio as gr
+import torch
+from peft import PeftModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+DATE = "26 Jul 2024"
+COL = {"P1": "#8a8780", "B1": "#d85a30", "J1": "#1d9e75"}
+NAME = {"P1": "Original model", "B1": "Naive Hindi fine-tuning", "J1": "BhashaJEPA (ours)"}
+EXAMPLES = [
+    "List three benefits of drinking water. Answer in exactly three bullet points.",
+    "Write a two-sentence summary of why trees are important. Do not use any commas.",
+    "भारत में मानसून का कृषि पर क्या प्रभाव पड़ता है? संक्षेप में बताइए।",
+    "मुझे स्वस्थ रहने के तीन आसान तरीके बताइए।",
+    "ಭಾರತದ ರಾಜಧಾನಿ ಯಾವುದು? ಒಂದು ವಾಕ್ಯದಲ್ಲಿ ಉತ್ತರಿಸಿ.",
+]
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--base", default="meta-llama/Llama-3.2-1B-Instruct")
+ap.add_argument("--b1", required=True)
+ap.add_argument("--j1", required=True)
+ap.add_argument("--results", default="")
+ap.add_argument("--share", action="store_true")
+a = ap.parse_args()
+
+# ------------------------------------------------------------------ model
+dev = "cuda" if torch.cuda.is_available() else "cpu"
+tok = AutoTokenizer.from_pretrained(a.j1)  # includes the <|predictor_k|> tokens added in training
+base = AutoModelForCausalLM.from_pretrained(a.base, dtype=torch.float16 if dev == "cuda" else torch.float32)
+base.resize_token_embeddings(len(tok))
+# load B1 first, then J1: each adapter file also stores the embedding table, and J1 was trained with
+# its own <|predictor_1|> row (used by the Meaning-match tab), so J1 must be loaded last
+model = PeftModel.from_pretrained(base, a.b1, adapter_name="B1")
+model.load_adapter(a.j1, adapter_name="J1")
+model.to(dev).eval()
+print("loaded on", dev)
+
+
+@torch.no_grad()
+def answer(prompt, which, max_new=160 if dev == "cuda" else 120):
+    enc = tok.apply_chat_template([{"role": "user", "content": prompt}], add_generation_prompt=True,
+                                  return_tensors="pt", return_dict=True, date_string=DATE)
+    enc = {k: v.to(dev) for k, v in enc.items()}
+    kw = dict(max_new_tokens=max_new, do_sample=False, pad_token_id=tok.eos_token_id)
+    if which == "P1":
+        with model.disable_adapter():
+            out = model.generate(**enc, **kw)
     else:
-        st.warning("⚠️ Bengaluru Hotspot Map Not Found")
-        st.markdown(
-            "To generate the detailed hotspot map, please run the `hotspot_map.py` script from the `Map_File` directory:"
-        )
-        st.code("python Map_File/hotspot_map.py", language="bash")
-        st.markdown("The app is looking for `outputs-maps/bengaluru_hotspot_all.html` or one of the following fallback files:")
-        for f in possible:
-            st.code(f)
-        # Placeholder map
-        ph = folium.Map(location=[12.9716,77.5946], zoom_start=7,
-                        tiles='CartoDB dark_matter')
-        folium.Marker([13.0716,77.1946],
-                      tooltip="Run kar_map_fixed.py to load real hotspot data"
-                      ).add_to(ph)
-        st_folium(ph, height=800, use_container_width=True, returned_objects=[])
+        model.set_adapter(which)
+        out = model.generate(**enc, **kw)
+    return tok.decode(out[0, enc["input_ids"].shape[1]:], skip_special_tokens=True).strip()
 
 
-# ════════════════════════════════════════════════════════════
-#  PAGE 3 — ALL DISTRICTS RANKING
-# ════════════════════════════════════════════════════════════
-elif page == "📊  All Districts Ranking":
+@torch.no_grad()
+def sentence_vec(text, which, pred=False):
+    if pred:
+        text = text + "<|predictor_1|>"
+    enc = tok.apply_chat_template([{"role": "user", "content": text}], add_generation_prompt=False,
+                                  return_tensors="pt", return_dict=True, date_string=DATE)
+    enc = {k: v.to(dev) for k, v in enc.items()}
+    if which == "P1":
+        with model.disable_adapter():
+            h = model(**enc, output_hidden_states=True).hidden_states[-1]
+    else:
+        model.set_adapter(which)
+        h = model(**enc, output_hidden_states=True).hidden_states[-1]
+    return h[0, -2].float()  # last content token (or <|predictor_1|>), as in training
 
-    page_header("State-Wide District Register", "FORM&nbsp;DCVI-03")
-    st.markdown(
-        "<div class='info-box'>DCVI score (0–100) combines crime volume (35%), "
-        "women+children ratio (35%), trend (20%), and crime variety (10%). "
-        "Higher score = higher vulnerability.</div>",
-        unsafe_allow_html=True
-    )
 
-    year_sel = st.radio("Prediction year", [2024, 2025], horizontal=True)
-    col_pred = 'pred_crimes_2024' if year_sel == 2024 else 'pred_crimes_2025'
+# ------------------------------------------------------------------ results (read from files, never typed)
+def read_rows(folder):
+    p = os.path.join(folder, "results.csv")
+    if not folder or not os.path.exists(p):
+        return {}
+    with open(p, encoding="utf-8") as f:
+        return {r["name"]: r for r in csv.DictReader(f)}
 
-    # Create display dataframe with formatted values
-    display_df = pred_df[['district','dcvi_score','risk',
-                           col_pred,'actual_2023','change_pct']].copy()
-    display_df.columns = ['District','DCVI Score','Risk',
-                           f'Predicted {year_sel}','Actual 2023','Change %']
-    display_df['District'] = display_df['District'].str.title()
-    display_df = display_df.sort_values('DCVI Score', ascending=False).reset_index(drop=True)
-    display_df.insert(0, 'Rank', range(1, len(display_df)+1))
 
-    # Create formatted display version for table
-    display_df_formatted = display_df.copy()
-    display_df_formatted['DCVI Score'] = display_df_formatted['DCVI Score'].round(1).astype(str)
-    display_df_formatted[f'Predicted {year_sel}'] = display_df_formatted[f'Predicted {year_sel}'].apply(lambda x: f"{int(x):,}")
-    display_df_formatted['Actual 2023'] = display_df_formatted['Actual 2023'].apply(lambda x: f"{int(x):,}")
-    display_df_formatted['Change %'] = display_df_formatted['Change %'].apply(lambda x: f"{x:+.1f}%")
+def mean_of(rows, prefix, key):
+    v = [float(r[key]) for n, r in rows.items() if n.startswith(prefix) and r.get(key)]
+    return sum(v) / len(v) if v else None
 
-    display_style = display_df_formatted.style.hide(axis='index').set_table_styles([
-        {'selector': 'th', 'props': [('font-size', '14px'), ('padding', '12px 16px'),
-                                      ('text-align','left'), ('background-color','#FFFFFF'),
-                                      ('color','#111827')]},
-        {'selector': 'td', 'props': [('font-size', '14px'), ('padding', '12px 16px'),
-                                      ('text-align','left'), ('background-color','#FFFFFF'),
-                                      ('color','#111827'), ('border-bottom','1px solid #F3F4F6')]},
-        {'selector': 'thead th', 'props': [('font-size', '12px'), ('font-weight', '700'),
-                                            ('background-color','#F9FAFB'), ('color','#374151'),
-                                            ('text-transform','uppercase'), ('letter-spacing','0.03em')]},
-        {'selector': 'tbody tr', 'props': [('height', '44px')]}
-    ])
-    st.dataframe(display_style, use_container_width=True, height=560)
 
-    st.markdown("<div class='dossier-divider'>DISTRICT COMPARISON</div>",
-                unsafe_allow_html=True)
-    st.markdown("<p class='sec-head'>All districts ranked by DCVI score</p>",
-                unsafe_allow_html=True)
+def mean_drift(folder, prefix):
+    p = os.path.join(folder, "drift.json")
+    if not os.path.exists(p):
+        return None
+    d = json.load(open(p))
+    vals = [x for n, xs in d.items() if n.startswith(prefix) for x in xs
+            if isinstance(x, (int, float)) and not math.isnan(x)]
+    return sum(vals) / len(vals) if vals else None
 
-    # Keep numeric values for charting
-    chart_df = display_df.sort_values('DCVI Score', ascending=True)
-    fig_all  = px.bar(
-        chart_df, x='DCVI Score', y='District',
-        color='Risk',
-        color_discrete_map=RISK_CLR,
-        orientation='h', height=700, text='DCVI Score'
-    )
-    fig_all.update_traces(
-        texttemplate='%{text:.1f}',
-        textposition='outside',
-        textfont=dict(size=15, color='#111827'),
-        marker_line_width=0
-    )
-    fig_all.update_layout(
-    margin=dict(t=80,b=20,l=10,r=80),
-    plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-    showlegend=True,
 
-    legend=dict(
-        orientation='h',
-        y=1.12,
-        x=0,
-        font=dict(size=18),
-        title=None
-    ),
-    xaxis=dict(showgrid=True, gridcolor='#F3F4F6', tickfont=dict(color='#9CA3AF')),
-    yaxis=dict(showgrid=False, tickfont=dict(color='#111827'))
-    )
-    fig_all.add_vline(
-    x=P33,
-    line_dash='dash',
-    line_color='#16A34A',
-    annotation_text=""
-    )
+rows = read_rows(a.results)
+stress = read_rows(os.path.join(os.path.dirname(os.path.normpath(a.results)), "stress")) if a.results else {}
+lr = read_rows(os.path.join(os.path.dirname(os.path.normpath(a.results)), "lr")) if a.results else {}
 
-    fig_all.add_vline(
-    x=P66,
-    line_dash='dash',
-    line_color='#DC2626',
-    annotation_text=""
-    )
-    st.caption(
-    f"Risk thresholds: LOW < {P33:.0f}, "
-    f"MEDIUM {P33:.0f}-{P66:.0f}, "
-    f"HIGH > {P66:.0f}"
-)
-    st.plotly_chart(fig_all, use_container_width=True, key='all_bar')
 
-    st.markdown("<div class='dossier-divider'>STATE SUMMARY</div>",
-                unsafe_allow_html=True)
-    s1, s2, s3, s4 = st.columns(4)
-    s1.metric("High risk districts",   str((pred_df['risk']=='HIGH').sum()))
-    s2.metric("Medium risk districts", str((pred_df['risk']=='MEDIUM').sum()))
-    s3.metric("Low risk districts",    str((pred_df['risk']=='LOW').sum()))
-    s4.metric("Avg DCVI score",        f"{pred_df['dcvi_score'].mean():.1f}")
-    
-# ════════════════════════════════════════════════════════════
-#  PAGE 4 — POLICE RESOURCE PLANNING
-# ════════════════════════════════════════════════════════════
-elif page == "🚔  Police Resource Planning":
+def pct(x):
+    return "–" if x is None else f"{100 * x:.1f}"
 
-    page_header("District Resource Dossier", "FORM&nbsp;DCVI-04")
-    st.markdown(
-        "<div class='dossier-subtitle' style='margin-bottom:18px'>"
-        "Cross-references predicted crime load against deployed station &amp; outpost "
-        "strength to flag where coverage has not kept pace with risk.</div>",
-        unsafe_allow_html=True
-    )
 
-    # Load police data and merge
-    police_df, police_geo = load_police_data()
-    merged_df = compute_coverage(pred_df, police_df)
+def num(x, d=2):
+    return "–" if x is None else f"{x:.{d}f}"
 
-    with st.expander("Data matching diagnostics"):
-        check_df = merged_df[['district','kgis_root','police_stations',
-                               'police_outposts','is_special']].copy()
-        check_df['Status'] = check_df['is_special'].map(
-            {True: 'Special jurisdiction (non-geographic)', False: 'Geographic district'})
-        check_df = check_df.drop(columns=['is_special'])
-        check_df.columns = ['Prediction District','Matched KGIS Root','Stations',
-                             'Outposts','Status']
-        real_gaps = ((check_df['Stations']==0) & (check_df['Outposts']==0)
-                     & (check_df['Status']=='Geographic district')).sum()
-        st.markdown(f"**{real_gaps}** geographic district(s) show zero infrastructure "
-                    f"after alias resolution. Non-geographic units (e.g. railway police) "
-                    f"are expected to show zero and are labeled accordingly below.")
-        st.dataframe(check_df, use_container_width=True, height=300)
 
-    # ── District Selector ─────────────────────────────────────
-    district = st.selectbox(
-        "Select district",
-        sorted(merged_df['district'].tolist()),
-        key="p4_district"
-    )
-    row = merged_df[merged_df['district'] == district].iloc[0]
-    risk = row['risk']
-    case_id = f"KA-{abs(hash(district)) % 9000 + 1000}"
-    gap_clr = '#DC2626' if row['gap_score'] >= 65 else '#111827'
+def chip(m):
+    return f'<span class="chip"><i style="background:{COL[m]}"></i>{m} · {NAME[m]}</span>'
 
-    # ── District Summary Card (animated odometer counters) ──────
-    render_odometer_card(
-        district=district,
-        case_id=case_id,
-        risk=risk,
-        dcvi=float(row['dcvi_score']),
-        pred_crimes=int(row['pred_crimes_2024']),
-        actual_2023=int(row['actual_2023']),
-        stations=int(row['police_stations']),
-        outposts=int(row['police_outposts']),
-        coverage=float(row['coverage_index']),
-        gap=float(row['gap_score']),
-        gap_clr=gap_clr
-    )
 
-    # ── Two-column layout: Coverage Ledger Bar + Crime Breakdown ──
-    left, right = st.columns([1, 1])
+def stat_cards():
+    p1 = rows.get("P1", {})
+    b_if, j_if = mean_of(rows, "B1_s", "ifeval"), mean_of(rows, "J1_s", "ifeval")
+    b_nll, j_nll = mean_of(rows, "B1_s", "hindi_val_nll"), mean_of(rows, "J1_s", "hindi_val_nll")
+    db, dj = mean_drift(a.results, "B1"), mean_drift(a.results, "J1")
+    drift_txt = f"{100 * (dj - db) / db:+.0f}%" if db and dj else "–"
+    p1_if = float(p1["ifeval"]) if p1.get("ifeval") else None
+    p1_nll = float(p1["hindi_val_nll"]) if p1.get("hindi_val_nll") else None
+    cards = [
+        ("Hindi learned", f"{num(p1_nll)} → {num(j_nll)}", "Hindi loss, original → J1 (lower is better)"),
+        ("English kept", f"{pct(p1_if)} → {pct(j_if)}", f"IFEval %, original → J1 (naive B1: {pct(b_if)})"),
+        ("English drift", drift_txt, "J1 vs naive B1, average over layers"),
+        ("Meaning alignment", "0.04 → 0.80", "Hindi ↔ English cosine during J1 training"),
+    ]
+    return '<div class="cards">' + "".join(
+        f'<div class="card"><div class="k">{k}</div><div class="v">{v}</div><div class="s">{s}</div></div>'
+        for k, v, s in cards) + "</div>"
 
-    with left:
-        st.markdown("<p class='sec-head'>Coverage vs. Gap, at a glance</p>", unsafe_allow_html=True)
-        fig_strip = go.Figure()
-        fig_strip.add_trace(go.Bar(
-            y=['Coverage Index', 'Gap Score'],
-            x=[row['coverage_index'], row['gap_score']],
-            orientation='h',
-            marker_color=['#16A34A', '#DC2626'],
-            text=[f"{row['coverage_index']:.1f}", f"{row['gap_score']:.1f}"],
-            textposition='outside',
-            textfont=dict(size=15, color='#111827'),
-            width=0.5
-        ))
-        fig_strip.update_layout(
-            height=200,
-            margin=dict(t=10, b=10, l=10, r=40),
-            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-            xaxis=dict(range=[0, 110], showgrid=True, gridcolor='#F3F4F6',
-                       tickfont=dict(size=12, color='#9CA3AF')),
-            yaxis=dict(tickfont=dict(size=14, color='#111827')),
-            showlegend=False
-        )
-        st.plotly_chart(fig_strip, use_container_width=True, key='strip_chart')
 
-    with right:
-        st.markdown("<p class='sec-head'>Case mix — 2023 recorded crime</p>", unsafe_allow_html=True)
-        cats = {
-            'Women':    row.get('crime_against_women', 0),
-            'Children': row.get('crime_against_children', 0),
-            'Violent':  row.get('violent_crime', 0),
-            'Cyber':    row.get('cyber_crime', 0),
-            'Other':    row.get('other_crime', 0),
-        }
-        cat_df = pd.DataFrame({'Category': list(cats.keys()),
-                               'Count': list(cats.values())})
-        fig_cat = px.bar(cat_df, x='Category', y='Count',
-                         color_discrete_sequence=['#6B7280'],
-                         text='Count', height=200)
-        fig_cat.update_traces(marker_color='#6B7280', textposition='outside',
-                              textfont=dict(size=13, color='#111827'))
-        fig_cat.update_layout(
-            margin=dict(t=10, b=10, l=10, r=10),
-            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-            xaxis=dict(tickfont=dict(size=13, color='#111827')),
-            yaxis=dict(tickfont=dict(size=12, color='#9CA3AF'), showgrid=True,
-                       gridcolor='#F3F4F6')
-        )
-        st.plotly_chart(fig_cat, use_container_width=True, key='cat_bar')
+def results_table():
+    def row(label, src, prefix, note=""):
+        g = lambda k: mean_of(src, prefix, k)
+        return (f"<tr><td>{label}{note}</td><td>{pct(g('ifeval'))}</td><td>{pct(g('mmlu'))}</td>"
+                f"<td>{pct(g('hellaswag'))}</td><td>{pct(g('EA'))}</td><td>{num(g('hindi_val_nll'))}</td>"
+                f"<td>{pct(g('belebele_kan_Knda'))}</td></tr>")
+    body = row(chip("P1"), rows, "P1") + row(chip("B1"), rows, "B1_s", " <em>3 seeds</em>") + \
+        row(chip("J1"), rows, "J1_s", " <em>3 seeds</em>")
+    for label, src, pfx in [("B2 · English replay", rows, "B2_s"), ("B4 · plain alignment", rows, "B4_s"),
+                            ("B1 · 3 epochs", stress, "B1_e3"), ("J1 · 3 epochs", stress, "J1_e3"),
+                            ("B1 · high LR (exploratory)", lr, "B1_lr"), ("J1 · high LR (exploratory)", lr, "J1_lr")]:
+        if mean_of(src, pfx, "EA") is not None:
+            body += row(label, src, pfx)
+    return ('<table class="res"><thead><tr><th>Model</th><th>IFEval %</th><th>MMLU %</th><th>HellaSwag %</th>'
+            '<th>English avg %</th><th>Hindi loss ↓</th><th>Kannada %</th></tr></thead><tbody>'
+            f"{body}</tbody></table>")
 
-    st.markdown("<div class='dossier-divider'>RECOMMENDED DIRECTIVES</div>",
-                unsafe_allow_html=True)
 
-    # ── Recommendations as numbered directives ─────────────────
-    recs = build_recommendations(row)
-    for i, (title, body) in enumerate(recs, start=1):
-        clean_title = title.split(' ', 1)[1] if ' ' in title else title
-        st.markdown(
-            f"<div class='directive-card'>"
-            f"<div class='directive-num'>DIRECTIVE {i:02d}</div>"
-            f"<div class='directive-title'>{clean_title}</div>"
-            f"<div class='directive-body'>{body}</div>"
-            f"</div>",
-            unsafe_allow_html=True
-        )
+# ------------------------------------------------------------------ actions
+def compare(prompt):
+    if not prompt.strip():
+        raise gr.Error("Type a prompt first")
+    res = [answer(prompt, m) for m in ("P1", "B1", "J1")]
+    with open("demo_outputs.jsonl", "a", encoding="utf-8") as f:
+        f.write(json.dumps({"time": time.strftime("%H:%M"), "prompt": prompt,
+                            "P1": res[0], "B1": res[1], "J1": res[2]}, ensure_ascii=False) + "\n")
+    return res
 
-    st.markdown("<div class='dossier-divider'>STATE-WIDE PRIORITY REGISTER</div>",
-                unsafe_allow_html=True)
 
-    # ── District Rankings Table ────────────────────────────────
-    st.markdown(
-        "<div class='priority-strip'>Register sorted by Gap Score — districts at the "
-        "top warrant the most urgent resource review.</div>",
-        unsafe_allow_html=True
-    )
+def bar(label, color, v):
+    w = max(0.0, min(1.0, v)) * 100
+    return (f'<div class="bar"><div class="bl">{label}</div><div class="bt"><div class="bf" '
+            f'style="width:{w:.0f}%;background:{color}"></div></div><div class="bv">{v:.2f}</div></div>')
 
-    rank_df = merged_df[['district','risk','dcvi_score','police_stations',
-                          'police_outposts','coverage_index','gap_score',
-                          'pred_crimes_2024']].copy()
-    rank_df.columns = ['District','Risk','DCVI','Stations','Outposts',
-                        'Coverage Index','Gap Score','Pred. Crimes 2024']
-    rank_df['District']       = rank_df['District'].str.title()
-    rank_df['DCVI']           = rank_df['DCVI'].round(1)
-    rank_df['Coverage Index'] = rank_df['Coverage Index'].round(1)
-    rank_df['Gap Score']      = rank_df['Gap Score'].round(1)
-    rank_df['Pred. Crimes 2024'] = rank_df['Pred. Crimes 2024'].apply(
-        lambda x: f"{int(x):,}")
-    rank_df = rank_df.sort_values('Gap Score', ascending=False).reset_index(drop=True)
-    rank_df.insert(0, 'Priority', range(1, len(rank_df)+1))
 
-    st.dataframe(rank_df, use_container_width=True, height=500)
+def meaning_match(hindi, english):
+    if not hindi.strip() or not english.strip():
+        raise gr.Error("Enter both sentences")
+    anchor = sentence_vec(english, "P1")  # frozen original model, English side
+    cos = torch.nn.functional.cosine_similarity
+    before = cos(sentence_vec(hindi, "P1"), anchor, dim=0).item()
+    after = cos(sentence_vec(hindi, "J1", pred=True), anchor, dim=0).item()
+    return (bar("Original model", COL["P1"], before) + bar("BhashaJEPA (J1)", COL["J1"], after) +
+            '<p class="note">Cosine similarity between the Hindi sentence\'s meaning vector and the original '
+            "model's English meaning vector. 1 = same meaning direction, 0 = unrelated.</p>")
 
-    # ── Gap Score Bar Chart ────────────────────────────────────
-    st.markdown("<p class='sec-head' style='margin-top:18px'>Resource gap — full district comparison</p>",
-                unsafe_allow_html=True)
 
-    chart_data = merged_df.sort_values('gap_score', ascending=True)
-    fig_gap = px.bar(
-        chart_data,
-        x='gap_score', y='district',
-        color='risk',
-        color_discrete_map={'HIGH':'#DC2626','MEDIUM':'#D97706','LOW':'#16A34A'},
-        orientation='h', height=900,
-        text='gap_score',
-        labels={'gap_score': 'Gap Score (0-100)', 'district': 'District'}
-    )
-    fig_gap.update_traces(
-        texttemplate='%{text:.1f}',
-        textposition='outside',
-        textfont=dict(size=12),
-        marker_line_width=0
-    )
-    fig_gap.update_layout(
-        margin=dict(t=20, b=20, l=10, r=80),
-        showlegend=True,
-        legend=dict(orientation='h', y=1.02, x=0,
-                    font=dict(size=14), title=None),
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        xaxis=dict(showgrid=True, gridcolor='#F3F4F6',
-                   tickfont=dict(size=13, color='#9CA3AF')),
-        yaxis=dict(showgrid=False, tickfont=dict(size=13, color='#111827'))
-    )
-    st.plotly_chart(fig_gap, use_container_width=True, key='gap_bar')
+def script_of(text):
+    if re.search(r"[\u0C80-\u0CFF]", text):
+        return "kn"
+    if re.search(r"[\u0900-\u097F]", text):
+        return "hi"
+    return "en"
 
-    # ── GIS Map — Crime Risk + Police Infrastructure ───────────
-    st.markdown("<div class='dossier-divider'>FIELD MAP</div>",
-                unsafe_allow_html=True)
-    st.markdown(
-        "<div class='dossier-subtitle' style='margin-bottom:14px'>"
-        "Risk markers sized by DCVI score, overlaid with deployed station "
-        "and outpost positions from the KGIS registry.</div>",
-        unsafe_allow_html=True
-    )
 
-    # Build district centroids from existing coords dict
-    DIST_COORDS = {
-        "bagalkot":[16.18,75.69], "ballari":[15.15,76.93],
-        "bangalore rural":[13.10,77.45], "bangalore urban":[12.97,77.59],
-        "belagavi city":[15.85,74.50], "belagavi district":[15.70,74.90],
-        "belgaum":[15.70,74.90],
-        "bengaluru city":[12.97,77.59], "bengaluru district":[13.10,77.45],
-        "bidar":[17.91,77.52], "chamarajanagara":[11.92,76.94],
-        "chamarajnagar":[11.92,76.94],
-        "chikkaballapura":[13.44,77.73], "chikkamagaluru":[13.32,75.77],
-        "chitradurga":[14.23,76.40], "dakshina kannada":[12.84,74.86],
-        "davanagere":[14.46,75.92], "dharwad":[15.46,75.01],
-        "gadag":[15.43,75.63], "hassan":[13.00,76.10],
-        "haveri":[14.80,75.40], "hubballi dharwad city":[15.36,75.12],
-        "k.g.f.":[12.96,78.27], "kgf":[12.96,78.27],
-        "k.railways":[15.0,76.5], "krailways":[15.0,76.5],
-        "kalaburagi":[17.33,76.82], "kodagu":[12.42,75.74],
-        "kolar":[13.14,78.13], "koppal":[15.35,76.15],
-        "mandya":[12.52,76.90], "mangaluru city":[12.91,74.85],
-        "mysuru city":[12.30,76.65], "mysuru district":[12.20,76.40],
-        "mysuru":[12.30,76.65],
-        "raichur":[16.20,77.35], "ramanagara":[12.72,77.28],
-        "shivamogga":[13.93,75.57], "shimoga":[13.93,75.57],
-        "tumakuru":[13.34,77.10], "udupi":[13.34,74.75],
-        "uttara kannada":[14.79,74.13], "vijayanagara":[15.32,76.46],
-        "vijayapura":[16.83,75.71], "bijapur":[16.83,75.71],
-        "yadgiri":[16.77,77.14], "yadgir":[16.77,77.14],
-    }
+LANG = {"en": "English", "hi": "Hindi", "kn": "Kannada"}
 
-    m4 = folium.Map(location=[15.0, 76.5], zoom_start=7,
-                    tiles='CartoDB positron')
 
-    risk_colors_folium = {'HIGH': '#DC2626', 'MEDIUM': '#D97706', 'LOW': '#16A34A'}
+def translate(text, src, tgt):
+    """Google Translate when online (deep-translator); otherwise the original Llama model translates offline."""
+    try:
+        from deep_translator import GoogleTranslator
+        return GoogleTranslator(source=src, target=tgt).translate(text).strip(), "Google Translate"
+    except Exception:
+        out = answer(f"Translate the following text from {LANG[src]} to {LANG[tgt]}. "
+                     f"Reply with only the translation, nothing else.\n\n{text}", "P1", max_new=120)
+        return out.strip().strip('"').splitlines()[0].strip(), "the original Llama model (offline)"
 
-    # Plot district risk circles
-    for _, drow in merged_df.iterrows():
-        dname = drow['district'].lower().strip()
-        coords = DIST_COORDS.get(dname)
-        if not coords:
-            continue
-        clr = risk_colors_folium.get(drow['risk'], '#6B7280')
-        popup_html = (
-            f"<b>{drow['district'].title()}</b><br>"
-            f"Risk: {drow['risk']}<br>"
-            f"DCVI: {drow['dcvi_score']:.1f}<br>"
-            f"Gap Score: {drow['gap_score']:.1f}<br>"
-            f"Stations: {int(drow['police_stations'])} | "
-            f"Outposts: {int(drow['police_outposts'])}<br>"
-            f"Coverage: {drow['coverage_index']:.1f}/100"
-        )
-        radius = 12000 + (drow['dcvi_score'] / 100) * 18000
-        folium.Circle(
-            location=coords,
-            radius=radius,
-            color=clr, fill=True, fill_color=clr, fill_opacity=0.35,
-            popup=folium.Popup(popup_html, max_width=220),
-            tooltip=f"{drow['district'].title()} — {drow['risk']}"
-        ).add_to(m4)
 
-    # Plot police stations & outposts (clustered)
-    from folium.plugins import MarkerCluster
-    sta_cluster = MarkerCluster(name="Police Stations").add_to(m4)
-    oup_cluster = MarkerCluster(name="Police Outposts").add_to(m4)
+def match_html(hindi, english, via):
+    anchor = sentence_vec(english, "P1")  # frozen original model, English side
+    cos = torch.nn.functional.cosine_similarity
+    before = cos(sentence_vec(hindi, "P1"), anchor, dim=0).item()
+    after = cos(sentence_vec(hindi, "J1", pred=True), anchor, dim=0).item()
+    if after > before + 0.02:
+        verdict = (f"BhashaJEPA places the Hindi meaning <b>{after / max(before, 1e-3):.1f}\u00d7 closer</b> to the "
+                   "English meaning than the original model does." if before > 0.05 else
+                   "BhashaJEPA lines the Hindi meaning up with the English meaning; the original model barely does.")
+    else:
+        verdict = "For this sentence BhashaJEPA does not move the Hindi meaning closer to English."
+    return ('<div class="mm"><div class="mmh">Meaning match \u00b7 Hindi \u2194 English</div>'
+            + bar("Original model", COL["P1"], before) + bar("BhashaJEPA (J1)", COL["J1"], after)
+            + f'<p class="verdict">{verdict}</p><p class="note">Score = cosine similarity between the Hindi '
+              "sentence's meaning vector and the original model's English meaning vector (1 = same meaning "
+              f"direction, 0 = unrelated). Translation by {html.escape(via)}.</p></div>")
 
-    for _, prow in police_geo.iterrows():
-        if prow['type'] == 'Station':
-            folium.CircleMarker(
-                location=[prow['Latitude'], prow['Longitude']],
-                radius=5, color='#1d4ed8', fill=True,
-                fill_color='#1d4ed8', fill_opacity=0.8,
-                popup=str(prow['name']),
-                tooltip=str(prow['name'])
-            ).add_to(sta_cluster)
-        else:
-            folium.CircleMarker(
-                location=[prow['Latitude'], prow['Longitude']],
-                radius=4, color='#7c3aed', fill=True,
-                fill_color='#7c3aed', fill_opacity=0.8,
-                popup=str(prow['name']),
-                tooltip=str(prow['name'])
-            ).add_to(oup_cluster)
 
-    folium.LayerControl(collapsed=False).add_to(m4)
+def try_it(prompt):
+    if not prompt.strip():
+        raise gr.Error("Type a prompt first")
+    src = script_of(prompt)
+    wait = "\u2026 thinking"
+    if src == "hi":
+        hindi = prompt
+        english, via = translate(prompt, "hi", "en")
+    elif src == "en":
+        english = prompt
+        hindi, via = translate(prompt, "en", "hi")
+    else:  # Kannada: compare its Hindi and English translations
+        english, via = translate(prompt, "kn", "en")
+        hindi, _ = translate(prompt, "kn", "hi")
+    mm = match_html(hindi, english, via)
+    yield hindi, english, mm, wait, wait, wait
+    res = []
+    for m in ("P1", "B1", "J1"):  # answers appear one by one (CPU is slow)
+        res.append(answer(prompt, m))
+        yield (hindi, english, mm, *res, *[wait] * (3 - len(res)))
+    with open("demo_outputs.jsonl", "a", encoding="utf-8") as f:
+        f.write(json.dumps({"time": time.strftime("%H:%M"), "prompt": prompt, "hindi": hindi, "english": english,
+                            "P1": res[0], "B1": res[1], "J1": res[2]}, ensure_ascii=False) + "\n")
 
-    legend_html = """
-    <div style='position:fixed;bottom:30px;left:30px;z-index:1000;background:#FFFFFF;
-                padding:14px 18px;border:1px solid #E5E7EB;border-radius:10px;font-size:12px;
-                font-family:Inter,Segoe UI,sans-serif;color:#111827;
-                box-shadow:0 2px 10px rgba(0,0,0,0.08)'>
-        <b style='letter-spacing:0.03em'>LEGEND</b><br>
-        <span style='color:#DC2626'>●</span> HIGH risk district<br>
-        <span style='color:#D97706'>●</span> MEDIUM risk district<br>
-        <span style='color:#16A34A'>●</span> LOW risk district<br>
-        <span style='color:#1d4ed8'>●</span> Police station<br>
-        <span style='color:#7c3aed'>●</span> Police outpost<br>
-        <i style='font-size:10px;color:#9CA3AF'>Circle size &prop; DCVI score</i>
-    </div>
-    """
-    m4.get_root().html.add_child(folium.Element(legend_html))
 
-    st_folium(m4, width=None, height=600, key='p4_map')
+# ------------------------------------------------------------------ key finding: the forgetting ladder
+# Plain Hindi training (B1, Hindi only, no English data), copied from the Kaggle results.md files.
+P1_REF = dict(ifeval=46.6, ea=50.0, nll=1.432, hin=35.8)
+LADDER = [  # setting, kind, IFEval, English avg, Hindi NLL, Belebele Hindi, note
+    ("LoRA, 1 epoch", "lora", 46.2, 49.6, 1.139, 34.3, "3 seeds"),
+    ("LoRA, 3 epochs", "lora", 45.5, 49.6, 1.197, 34.0, "1 seed"),
+    ("LoRA, 5\u00d7 learning rate", "lora", 40.7, 45.0, 1.201, 27.9, "1 seed"),
+    ("Full fine-tuning", "full", 37.0, 45.6, 1.187, 29.3, "1 seed"),
+    ("Full fine-tuning, embeddings frozen", "full", 34.9, 44.8, 1.192, 30.4, "1 seed"),
+]
+FULL_J1 = [("B1 \u00b7 naive", COL["B1"], 34.9, 44.8, 1.192), ("J1 \u00b7 BhashaJEPA", COL["J1"], 32.7, 44.5, 1.190)]
+
+
+def ladder_html():
+    top = max(P1_REF["ifeval"] - r[2] for r in LADDER)
+    lora_drop, full_drop = P1_REF["ifeval"] - LADDER[0][2], P1_REF["ifeval"] - LADDER[3][2]
+    bars = ""
+    for name, kind, ife, ea, nll, hin, note in LADDER:
+        d = P1_REF["ifeval"] - ife
+        color = COL["B1"] if kind == "full" else "#9a978f"
+        bars += (f'<div class="lad"><div class="ll">{html.escape(name)}<em>{note}</em></div><div class="bt">'
+                 f'<div class="bf" style="width:{max(d / top, 0.01) * 100:.0f}%;background:{color}"></div></div>'
+                 f'<div class="lv">\u2212{d:.1f}</div></div>')
+    rows = "".join(f"<tr><td>{html.escape(n)}</td><td>{i:.1f}</td><td>{e:.1f}</td><td>{nl:.3f}</td><td>{h:.1f}</td></tr>"
+                   for n, _, i, e, nl, h, _ in LADDER)
+    j1 = "".join(f'<tr><td><i class="dot" style="background:{c}"></i>{html.escape(n)}</td><td>{i:.1f}</td>'
+                 f"<td>{e:.1f}</td><td>{nl:.3f}</td></tr>" for n, c, i, e, nl in FULL_J1)
+    return f"""
+<div class="kf">
+  <div class="kfh">Key finding</div>
+  <h2>Full fine-tuning forgets English {full_drop / lora_drop:.0f}\u00d7 more than LoRA</h2>
+  <p class="note">Same 3,000 Hindi examples, no English data. Bars = English instruction-following (IFEval) points
+  lost vs the original model ({P1_REF['ifeval']}). Longer bar = more forgetting.</p>
+  {bars}
+  <div class="axisnote">IFEval points lost \u2192</div>
+</div>
+<div class="two">
+  <div class="kf">
+    <div class="kfh">LoRA wins on both sides</div>
+    <table class="res"><tr><th>Setting</th><th>IFEval</th><th>English avg</th><th>Hindi loss \u2193</th><th>Hindi reading</th></tr>
+    <tr><td><b>Original model</b></td><td>{P1_REF['ifeval']}</td><td>{P1_REF['ea']}</td><td>{P1_REF['nll']}</td><td>{P1_REF['hin']}</td></tr>{rows}</table>
+    <p class="note">LoRA (1 epoch) learned <b>more</b> Hindi (loss 1.14 vs 1.19) <b>and</b> kept English
+    (\u22120.4 vs \u22129.6). For a 1B model with a few thousand Hindi examples, use LoRA.</p>
+  </div>
+  <div class="kf">
+    <div class="kfh">Does BhashaJEPA stop it? (full fine-tuning)</div>
+    <table class="res"><tr><th>Model</th><th>IFEval</th><th>English avg</th><th>Hindi loss \u2193</th></tr>{j1}</table>
+    <p class="note">Not yet: same forgetting, same Hindi (1 seed). Aligning Hindi to English meaning is not enough on
+    its own; the next step is to anchor English itself too (twin anchor).</p>
+  </div>
+</div>"""
+
+
+# ------------------------------------------------------------------ layout
+CSS = """
+.gradio-container {max-width: 1120px !important; margin: auto;}
+.hero h1 {font-size: 30px; font-weight: 650; letter-spacing: -0.02em; margin: 8px 0 4px;}
+.hero p {color: var(--body-text-color-subdued); margin: 0 0 14px; font-size: 15px;}
+.chips {display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;}
+.chip {display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 4px 10px;
+       border: 1px solid var(--border-color-primary); border-radius: 999px;}
+.chip i {width: 9px; height: 9px; border-radius: 50%; display: inline-block;}
+.cards {display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0 4px;}
+.card {border: 1px solid var(--border-color-primary); border-radius: 14px; padding: 14px 16px;
+       background: var(--block-background-fill);}
+.card .k {font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--body-text-color-subdued);}
+.card .v {font-size: 24px; font-weight: 650; margin: 6px 0 2px;}
+.card .s {font-size: 12.5px; color: var(--body-text-color-subdued);}
+.col-P1 textarea {border-top: 3px solid #8a8780 !important;}
+.col-B1 textarea {border-top: 3px solid #d85a30 !important;}
+.col-J1 textarea {border-top: 3px solid #1d9e75 !important;}
+.bar {display: grid; grid-template-columns: 170px 1fr 56px; align-items: center; gap: 12px; margin: 14px 0;}
+.bl {font-weight: 600;} .bv {font-size: 22px; font-weight: 650; text-align: right;}
+.bt {height: 14px; border-radius: 999px; background: var(--border-color-primary); overflow: hidden;}
+.bf {height: 100%; border-radius: 999px;}
+.note {color: var(--body-text-color-subdued); font-size: 13px;}
+.mm {border: 1px solid var(--border-color-primary); border-radius: 14px; padding: 6px 18px 4px;
+     background: var(--block-background-fill);}
+.mmh {font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--body-text-color-subdued);
+      margin-top: 10px;}
+.verdict {font-size: 15px; margin: 4px 0 6px;}
+.kf {border: 1px solid var(--border-color-primary); border-radius: 14px; padding: 6px 20px 10px;
+     background: var(--block-background-fill); margin-bottom: 14px;}
+.kfh {font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--body-text-color-subdued);
+      margin-top: 12px;}
+.kf h2 {font-size: 22px; font-weight: 650; margin: 6px 0 4px; letter-spacing: -0.01em;}
+.lad {display: grid; grid-template-columns: 260px 1fr 64px; align-items: center; gap: 14px; margin: 12px 0;}
+.ll {font-weight: 600; font-size: 14px;} .ll em {display: block; font-style: normal; font-weight: 400; font-size: 12px;
+     color: var(--body-text-color-subdued);}
+.lv {font-size: 20px; font-weight: 650; text-align: right;}
+.lad .bt {height: 18px;}
+.axisnote {text-align: right; font-size: 12px; color: var(--body-text-color-subdued); margin: -4px 64px 6px 0;}
+.two {display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px;}
+.kf table.res, .kf .res tr {border: none !important; box-shadow: none !important;}
+.kf .res td:first-child {white-space: nowrap;}
+.dot {width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 6px;}
+@media (max-width: 800px) {.two {grid-template-columns: 1fr;} .lad {grid-template-columns: 130px 1fr 54px;}}
+.steps {display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;}
+.step {border: 1px solid var(--border-color-primary); border-radius: 14px; padding: 16px;}
+.step b {display: block; font-size: 15px; margin-bottom: 6px;}
+.step span {font-size: 13.5px; color: var(--body-text-color-subdued);}
+.res {width: 100%; border-collapse: collapse; font-size: 14px;}
+.res th {text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
+         color: var(--body-text-color-subdued); padding: 8px; border-bottom: 1px solid var(--border-color-primary);}
+.res td {padding: 9px 8px; border-bottom: 1px solid var(--border-color-primary);}
+.res, .res th, .res td {border-left: none !important; border-right: none !important; background: transparent !important;}
+.res em {font-size: 12px; color: var(--body-text-color-subdued); font-style: normal;}
+.foot {text-align: center; font-size: 12.5px; color: var(--body-text-color-subdued); margin-top: 18px;}
+@media (max-width: 800px) {.cards, .steps {grid-template-columns: 1fr 1fr;}}
+"""
+THEME = gr.themes.Soft(primary_hue="teal", neutral_hue="slate",
+                       font=[gr.themes.GoogleFont("Inter"), "system-ui", "sans-serif"])
+GR6 = int(gr.__version__.split(".")[0]) >= 6
+STEPS = [
+    ("1 · Read Hindi", "The model reads a Hindi instruction plus one extra [PRED] token."),
+    ("2 · Predict English meaning", "From [PRED], it must predict the frozen original model's meaning of the "
+                                    "same instruction in English (cosine loss)."),
+    ("3 · Learn the Hindi answer", "At the same time it learns to write the Hindi answer as usual. "
+                                   "Only translated instructions are needed, never English answers."),
+]
+
+with gr.Blocks(title="BhashaJEPA", **({} if GR6 else {"theme": THEME, "css": CSS})) as demo:
+    gr.HTML('<div class="hero"><h1>BhashaJEPA</h1><p>Teaching a small English model Hindi, '
+            'anchored to its own English understanding.</p><div class="chips">'
+            + chip("P1") + chip("B1") + chip("J1") + "</div></div>" + (stat_cards() if rows else ""))
+
+    with gr.Tab("Try it"):
+        inp = gr.Textbox(label="Prompt in English, Hindi or Kannada", lines=2,
+                         placeholder="Type anything: we translate it, measure the meaning match, and ask all three models")
+        gr.Examples(EXAMPLES, inp)
+        btn = gr.Button("Translate, match and ask all three", variant="primary")
+        with gr.Row(equal_height=True):
+            hi_box = gr.Textbox(label="Hindi version", lines=2, interactive=False)
+            en_box = gr.Textbox(label="English version", lines=2, interactive=False)
+        mm_out = gr.HTML()
+        with gr.Row(equal_height=True):
+            o1 = gr.Textbox(label="P1 · Original model", lines=10, elem_classes="col-P1")
+            o2 = gr.Textbox(label="B1 · Naive Hindi fine-tuning", lines=10, elem_classes="col-B1")
+            o3 = gr.Textbox(label="J1 · BhashaJEPA (ours)", lines=10, elem_classes="col-J1")
+        gr.Markdown("<span class='note'>Kannada is not in our fine-tuning data (exploratory).</span>")
+        btn.click(try_it, inp, [hi_box, en_box, mm_out, o1, o2, o3])
+        inp.submit(try_it, inp, [hi_box, en_box, mm_out, o1, o2, o3])
+
+    with gr.Tab("Key finding"):
+        gr.HTML(ladder_html())
+
+    with gr.Tab("How it works"):
+        gr.HTML('<div class="steps">' + "".join(f"<div class='step'><b>{html.escape(t)}</b>"
+                                                f"<span>{html.escape(s)}</span></div>" for t, s in STEPS)
+                + "</div><p class='note' style='margin-top:14px'>Every model starts from the same Llama-3.2-1B, "
+                  "sees the same 3,000 Hindi examples in the same order, and takes the same tests. "
+                  "LoRA trains 3.5% of the weights; switching it off gives back the original model.</p>")
+        for f in sorted(glob.glob(os.path.join(a.results or ".", "diagrams", "*.png"))):
+            gr.Image(f, show_label=False, interactive=False)
+
+    if rows:
+        with gr.Tab("Results"):
+            gr.HTML(results_table() + "<p class='note'>Mean of 3 seeds for B1 and J1; one seed otherwise. "
+                    "Differences under about 4 IFEval points are within noise.</p>")
+            figs = {os.path.basename(f): f for f in glob.glob(os.path.join(a.results, "figures", "*.png"))}
+            order = ["english_ifeval.png", "drift.png", "pareto.png", "all_benchmarks.png", "training_curves.png"]
+            pics = [figs[n] for n in order if n in figs]
+            for i in range(0, len(pics), 2):
+                with gr.Row():
+                    for f in pics[i:i + 2]:
+                        gr.Image(f, show_label=False, interactive=False)
+
+    gr.HTML('<div class="foot">Llama-3.2-1B-Instruct · LoRA · LLM-JEPA loss · Bactrian-X · '
+            f'running on {dev.upper()} · Team Sci-Py, Hashcode 14.0</div>')
+
+demo.launch(share=a.share, **({"theme": THEME, "css": CSS} if GR6 else {}))
