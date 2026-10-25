@@ -5,6 +5,7 @@
   B4  plain alignment      lambda=1, k=0, frozen cached anchor
   J1  BhashaJEPA           lambda=1, k=1, frozen cached anchor
   J2  shared target        lambda=1, k=1, live target with gradients (LLM-JEPA default)
+  J3  BhashaJEPA + replay  lambda=1, k=1, frozen anchor, + replay_en.jsonl (JEPA on the Hindi rows only)
 
 Smoke test first (checks + 20 steps), then the real run:
   CUDA_VISIBLE_DEVICES=0 python train/train.py --method B1 --seed 0 --model /tmp/llama --smoke
@@ -13,7 +14,7 @@ Smoke test first (checks + 20 steps), then the real run:
 Uses ideas from galilai-group/llm-jepa (Apache-2.0): predictor-token naming and last-token indexing.
 Tested-against versions: transformers==4.55.2, peft==0.17.0.
 """
-import argparse, hashlib, json, os, random, subprocess, time
+import argparse, contextlib, hashlib, json, os, random, subprocess, time
 
 import torch
 import torch.nn.functional as F
@@ -29,6 +30,7 @@ PRESETS = {
     "B4": dict(lbd=1.0, k=0, anchor="frozen", replay=False),
     "J1": dict(lbd=1.0, k=1, anchor="frozen", replay=False),
     "J2": dict(lbd=1.0, k=1, anchor="live", replay=False),
+    "J3": dict(lbd=1.0, k=1, anchor="frozen", replay=True),
 }
 
 
@@ -114,11 +116,12 @@ class Collator:
         b = {"input_ids": pad([f["input_ids"] for f in feats], self.pad_id),
              "labels": pad([f["labels"] for f in feats], -100),
              "attention_mask": mask([f["input_ids"] for f in feats])}
-        if all("pred_ids" in f for f in feats):
+        js = [f for f in feats if "pred_ids" in f]  # Hindi rows (replay rows have no JEPA views)
+        if js:
             for key in ("pred", "en"):
-                seqs = [f[f"{key}_ids"] for f in feats]
+                seqs = [f[f"{key}_ids"] for f in js]
                 b[f"{key}_ids"], b[f"{key}_mask"] = pad(seqs, self.pad_id), mask(seqs)
-            b["anchor_idx"] = torch.tensor([f["anchor_idx"] for f in feats])
+            b["anchor_idx"] = torch.tensor([f["anchor_idx"] for f in js])
         return b
 
 
@@ -197,8 +200,9 @@ def smoke_checks(model, tok, ds, collate, anchors, offset, a, device):
     print(f"    {n_masked} prompt tokens masked; prompt ends with: {tok.decode(f['input_ids'][n_masked - 8:n_masked])!r}")
 
     names = [n for n, p in model.named_parameters() if p.requires_grad]
-    assert names and all("lora_" in n for n in names), "something other than LoRA is trainable"
-    print(f"[2] trainable tensors: {len(names)} (all LoRA)")
+    if not a.full:
+        assert names and all("lora_" in n for n in names), "something other than LoRA is trainable"
+    print(f"[2] trainable tensors: {len(names)} ({'all weights' if a.full else 'all LoRA'})")
 
     if a.lbd > 0:
         p_tok = tok.convert_ids_to_tokens(f["pred_ids"][len(f["pred_ids"]) + offset])
@@ -209,7 +213,7 @@ def smoke_checks(model, tok, ds, collate, anchors, offset, a, device):
         b = {k: v.to(device) for k, v in collate([ds[i] for i in range(4)]).items()}
         model.eval()
         with torch.no_grad():
-            with model.disable_adapter():
+            with (contextlib.nullcontext() if a.full else model.disable_adapter()):  # full FT at step 0 = base model
                 live = last_state(model, b["en_ids"], b["en_mask"], offset).float()
             if anchors is not None:
                 c = F.cosine_similarity(live, anchors[b["anchor_idx"].cpu()].to(device), dim=-1)
@@ -251,12 +255,14 @@ def main():
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--merge_to", default=None)
     ap.add_argument("--tag", default="")
+    ap.add_argument("--full", action="store_true",
+                    help="full fine-tuning of all weights (fp32 master weights + Adafactor) instead of LoRA")
     a = ap.parse_args()
     p = PRESETS[a.method]
     a.lbd = p["lbd"] if a.lbd is None else a.lbd
     a.k = p["k"] if a.k is None else a.k
     a.anchor, a.replay = p["anchor"], p["replay"]
-    assert not (a.replay and a.lbd > 0), "replay rows have no JEPA views"
+    # replay rows carry no JEPA views; the collator applies JEPA to the Hindi rows of each batch only
     set_seed(a.seed)
     random.seed(a.seed)
     dtype = torch.float16 if a.dtype == "fp16" else torch.bfloat16
@@ -273,7 +279,7 @@ def main():
     tok.padding_side = "right"
     offset = find_offset(tok)
 
-    model = AutoModelForCausalLM.from_pretrained(a.model, torch_dtype=dtype).to(device)
+    model = AutoModelForCausalLM.from_pretrained(a.model, torch_dtype=torch.float32 if a.full else dtype).to(device)
     model.resize_token_embeddings(len(tok))
     model.config.use_cache = False
 
@@ -290,24 +296,29 @@ def main():
         if os.path.exists(cache):
             anchors = torch.load(cache)
         else:
-            en = [None] * len(ds)
+            en = [None] * sum("anchor_idx" in r for r in rows)  # Hindi rows only, never replay rows
             for r in rows:
                 if "anchor_idx" in r:
                     en[r["anchor_idx"]] = r["en_ids"]
             model.eval()
             t0 = time.time()
-            anchors = encode(model, en, tok.pad_token_id, offset, device)
+            with torch.autocast("cuda", dtype=dtype):
+                anchors = encode(model, en, tok.pad_token_id, offset, device)
             torch.save(anchors, cache)
             print(f"anchor cache {tuple(anchors.shape)} built in {time.time() - t0:.0f}s -> {cache}")
 
-    lora = LoraConfig(task_type=TaskType.CAUSAL_LM, r=a.rank, lora_alpha=2 * a.rank, lora_dropout=0.1,
-                      target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"])
-    model = get_peft_model(model, lora)
-    for n, prm in model.named_parameters():
-        if prm.requires_grad:
-            prm.data = prm.data.float()  # fp32 LoRA weights: needed for fp16 grad scaling
-    model.enable_input_require_grads()
-    model.print_trainable_parameters()
+    if a.full:
+        n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        print(f"FULL fine-tuning: {n_train / 1e6:.0f}M trainable parameters (all weights)")
+    else:
+        lora = LoraConfig(task_type=TaskType.CAUSAL_LM, r=a.rank, lora_alpha=2 * a.rank, lora_dropout=0.1,
+                          target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"])
+        model = get_peft_model(model, lora)
+        for n, prm in model.named_parameters():
+            if prm.requires_grad:
+                prm.data = prm.data.float()  # fp32 LoRA weights: needed for fp16 grad scaling
+        model.enable_input_require_grads()
+        model.print_trainable_parameters()
 
     try:
         commit = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], text=True).strip()
@@ -329,11 +340,11 @@ def main():
         output_dir=run_dir, per_device_train_batch_size=a.micro_bsz, gradient_accumulation_steps=a.grad_accum,
         learning_rate=a.lr, num_train_epochs=a.epochs, max_steps=20 if a.smoke else -1,
         lr_scheduler_type="cosine", warmup_ratio=0.03, logging_steps=1 if a.smoke else 5,
-        save_strategy="steps", save_steps=max(steps_per_epoch // 2, 1), save_total_limit=2,
+        save_strategy="no" if a.full else "steps", save_steps=max(steps_per_epoch // 2, 1), save_total_limit=2,
         fp16=a.dtype == "fp16", bf16=a.dtype == "bf16",
         gradient_checkpointing=True, gradient_checkpointing_kwargs={"use_reentrant": False},
         remove_unused_columns=False, dataloader_num_workers=0, report_to="none",
-        seed=a.seed, data_seed=a.seed, optim="adamw_torch")
+        seed=a.seed, data_seed=a.seed, optim="adafactor" if a.full else "adamw_torch")
     trainer = JepaTrainer(model=model, args=args, train_dataset=ds, data_collator=collate, processing_class=tok,
                           lbd=a.lbd, anchor_mode=a.anchor, anchors=anchors, offset=offset,
                           jepa_ratio=a.jepa_ratio, log_path=os.path.join(run_dir, "log.jsonl"))
@@ -349,6 +360,12 @@ def main():
 
     if a.smoke:
         print(f"Smoke done. Full run estimate: ~{summary['sec_per_step'] * steps_per_epoch * a.epochs / 60:.0f} min")
+        return
+    if a.full:  # the trained model is the full model: save it once, in fp16, where eval expects it
+        if a.merge_to:
+            trainer.model.half().save_pretrained(a.merge_to, safe_serialization=True)
+            tok.save_pretrained(a.merge_to)
+            print("full model ->", a.merge_to)
         return
     trainer.model.save_pretrained(os.path.join(run_dir, "adapter"))
     tok.save_pretrained(os.path.join(run_dir, "adapter"))
