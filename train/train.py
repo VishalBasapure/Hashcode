@@ -257,6 +257,8 @@ def main():
     ap.add_argument("--tag", default="")
     ap.add_argument("--full", action="store_true",
                     help="full fine-tuning of all weights (fp32 master weights + Adafactor) instead of LoRA")
+    ap.add_argument("--freeze_emb", action="store_true",
+                    help="with --full: keep the (tied) token embedding / output matrix frozen to fit a 15 GB T4")
     a = ap.parse_args()
     p = PRESETS[a.method]
     a.lbd = p["lbd"] if a.lbd is None else a.lbd
@@ -308,6 +310,8 @@ def main():
             print(f"anchor cache {tuple(anchors.shape)} built in {time.time() - t0:.0f}s -> {cache}")
 
     if a.full:
+        if a.freeze_emb:  # Llama 3.2 ties input embeddings and lm_head: this freezes both (saves ~1 GB of grads)
+            model.get_input_embeddings().weight.requires_grad_(False)
         n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
         print(f"FULL fine-tuning: {n_train / 1e6:.0f}M trainable parameters (all weights)")
     else:
