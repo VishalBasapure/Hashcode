@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BhashaJEPA: teaching a small AI Hindi without losing its English</title>
+<meta name="description" content="Hashcode 14.0 project by Team Sci-Py. We tested whether a JEPA-style loss stops English forgetting when Llama-3.2-1B learns Hindi. Honest results, code and plots.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f4bff'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='Georgia'%3Eb%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:#f2f4f8; --panel:#ffffff; --ink:#14171f; --muted:#566074; --line:#d9dee8;
+  --accent:#2f4bff; --accent-ink:#ffffff; --keep:#8fa0bd; --lose:#d6336c; --soft:#e8ecf5;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1218; --panel:#171b24; --ink:#e8ebf2; --muted:#9aa3b5; --line:#262c3a;
+    --accent:#8fa2ff; --accent-ink:#0f1218; --keep:#5d6b86; --lose:#ff6b8b; --soft:#1e2431;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1218; --panel:#171b24; --ink:#e8ebf2; --muted:#9aa3b5; --line:#262c3a;
+  --accent:#8fa2ff; --accent-ink:#0f1218; --keep:#5d6b86; --lose:#ff6b8b; --soft:#1e2431;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:17px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+main{max-width:880px;margin:0 auto;padding:56px 22px 40px}
+h1,h2,h3{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:700;line-height:1.15;margin:0}
+h1{font-size:clamp(2.1rem,6vw,3.5rem);letter-spacing:-.02em;max-width:18ch}
+h2{font-size:1.65rem;letter-spacing:-.01em;margin:64px 0 14px}
+h3{font-size:1.15rem;margin:26px 0 6px}
+p{margin:0 0 14px;max-width:68ch}
+.lede{font-size:1.18rem;color:var(--muted);margin-top:22px;max-width:60ch}
+.who{margin-top:18px;color:var(--muted);font-size:.95rem}
+a{color:var(--accent)}
+a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:4px}
+.btns{display:flex;flex-wrap:wrap;gap:12px;margin:28px 0 8px}
+.btn{display:inline-block;padding:12px 20px;border-radius:10px;font-weight:600;text-decoration:none;border:1.5px solid var(--accent)}
+.btn.main{background:var(--accent);color:var(--accent-ink)}
+.btn.alt{color:var(--accent)}
+.ladder{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px 24px 20px;margin-top:40px}
+.ladder h2{margin:0 0 6px;font-size:1.5rem}
+.ladder .sub{color:var(--muted);font-size:.95rem;margin-bottom:20px}
+.row{display:grid;grid-template-columns:minmax(120px,230px) 1fr 52px;gap:14px;align-items:center;margin:14px 0}
+.row .name{font-weight:600;font-size:.95rem;line-height:1.3}
+.row .name small{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
+.track{height:20px;background:var(--soft);border-radius:999px;overflow:hidden}
+.bar{height:100%;border-radius:999px;background:var(--keep)}
+.bar.lose{background:var(--lose)}
+.val{font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.note{color:var(--muted);font-size:.88rem;margin:16px 0 0}
+.formula{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;
+  padding:16px 18px;margin:18px 0;font:.95rem/1.6 ui-monospace,Consolas,Menlo,monospace;overflow-x:auto}
+.wrap{overflow-x:auto;margin:14px 0}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.93rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{font-weight:600;color:var(--muted);font-size:.85rem}
+tr.us td{font-weight:700;background:var(--soft)}
+ul{padding-left:1.2em;margin:0 0 14px;max-width:68ch}
+li{margin:6px 0}
+.good::marker{color:var(--accent)} .bad::marker{color:var(--lose)}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin:18px 0}
+figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px}
+figure img{width:100%;height:auto;display:block;border-radius:6px}
+figcaption{font-size:.82rem;color:var(--muted);padding:8px 4px 2px}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:16px 0}
+summary{cursor:pointer;font-weight:600}
+details img{width:100%;max-width:560px;height:auto;display:block;margin:14px auto 4px}
+.team figure{max-width:560px}
+footer{max-width:880px;margin:0 auto;padding:28px 22px 56px;color:var(--muted);font-size:.88rem;border-top:1px solid var(--line)}
+@media (max-width:560px){main{padding-top:36px}.row{grid-template-columns:1fr 48px}.row .name{grid-column:1/-1}.ladder{padding:20px 16px}}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>We tried to stop a small AI from forgetting English. It only half worked.</h1>
+  <p class="lede">Teach Llama-3.2-1B Hindi and its English can suffer. Our idea, BhashaJEPA, asks the model to keep its Hindi close to its own English understanding. We tested it against the standard fixes, and we wrote our success rules before the first run.</p>
+  <p class="who">Hashcode 14.0, Track 02 (LLM Training), PES University. Team Sci-Py: Vishal, N Abhilash and Prithwin.</p>
+  <div class="btns">
+    <a class="btn main" href="https://github.com/VishalBasapure/Hashcode">View the code on GitHub</a>
+    <a class="btn alt" href="#results">Jump to the results</a>
+  </div>
+</header>
+
+<section class="ladder" aria-labelledby="ladder-h">
+  <h2 id="ladder-h">Full fine-tuning loses about 10 English points. LoRA loses about none.</h2>
+  <p class="sub">English instruction-following points lost after learning Hindi (IFEval; original model scores 46.6). A longer bar means more forgetting.</p>
+  <div class="row"><div class="name">LoRA, 1 epoch<small>mean of 3 seeds</small></div><div class="track"><div class="bar" style="width:3.4%"></div></div><div class="val">−0.4</div></div>
+  <div class="row"><div class="name">LoRA, 3 epochs<small>1 seed</small></div><div class="track"><div class="bar" style="width:9.4%"></div></div><div class="val">−1.1</div></div>
+  <div class="row"><div class="name">LoRA, 5× learning rate<small>1 seed</small></div><div class="track"><div class="bar" style="width:50.4%"></div></div><div class="val">−5.9</div></div>
+  <div class="row"><div class="name">Full fine-tuning<small>1 seed</small></div><div class="track"><div class="bar lose" style="width:82%"></div></div><div class="val">−9.6</div></div>
+  <div class="row"><div class="name">Full fine-tuning, embeddings frozen<small>1 seed</small></div><div class="track"><div class="bar lose" style="width:100%"></div></div><div class="val">−11.7</div></div>
+  <p class="note">Differences under about 4 points are within test noise, so the first two rows mean “about none”. BhashaJEPA under full fine-tuning lost 13.9 points (single run), about the same as plain fine-tuning, not less.</p>
+</section>
+
+<h2>The problem</h2>
+<p>Fine-tuning an English instruct model on a new language can damage the English it already had. The usual fix is replaying English data, but that needs old training data or English answers, which teams often don’t have.</p>
+
+<h2>The idea</h2>
+<p>A Hindi instruction and its English original mean the same thing. While the model learns Hindi, we also ask it to predict how the original model understood the English version. Only translated instructions are needed, never English answers.</p>
+<div class="formula">loss = Hindi language loss + λ · (1 − cosine( predicted meaning of the Hindi instruction, frozen English meaning ))</div>
+<details>
+  <summary>See the full pipeline</summary>
+  <img src="flow_diagram.png" alt="Pipeline diagram: Bactrian-X data is prepared, a LoRA trainer applies the JEPA loss, models are evaluated on English and Hindi benchmarks, drift is measured, and results are plotted." loading="lazy" onerror="this.closest('details').remove()">
+</details>
+
+<h3>Methods compared</h3>
+<div class="wrap"><table>
+<tr><th>Method</th><th>What it tests</th></tr>
+<tr><td>P1 original model</td><td>English ceiling, Hindi floor</td></tr>
+<tr><td>B1 naive fine-tuning</td><td>How much English is forgotten</td></tr>
+<tr><td>B2 English replay</td><td>The known fix that needs English answers</td></tr>
+<tr><td>B4 plain alignment</td><td>Is prediction needed, or is alignment enough?</td></tr>
+<tr class="us"><td>J1 BhashaJEPA</td><td>Our method</td></tr>
+<tr><td>J2 shared target</td><td>Implemented, not run</td></tr>
+</table></div>
+
+<h2 id="results">Results</h2>
+<p>LoRA, 1 epoch, 3,000 Hindi examples, accuracy in %. Hindi loss is measured on 300 held-out Hindi answers (lower is better). B1 and J1 are means of 3 seeds; the other rows are single runs.</p>
+<div class="wrap"><table>
+<tr><th>Model</th><th>IFEval</th><th>MMLU</th><th>HellaSwag</th><th>English avg</th><th>Hindi loss</th></tr>
+<tr><td>P1 original</td><td>46.6</td><td>48.0</td><td>55.4</td><td>50.0</td><td>1.432</td></tr>
+<tr><td>B1 naive</td><td>46.2</td><td>46.8</td><td>55.8</td><td>49.6</td><td>1.139</td></tr>
+<tr><td>B2 English replay</td><td>42.5</td><td>47.0</td><td>56.4</td><td>48.6</td><td>1.137</td></tr>
+<tr><td>B4 plain alignment</td><td>44.2</td><td>47.0</td><td>54.7</td><td>48.6</td><td>1.147</td></tr>
+<tr class="us"><td>J1 BhashaJEPA</td><td>46.5</td><td>47.1</td><td>54.6</td><td>49.4</td><td>1.145</td></tr>
+</table></div>
+
+<h3>What we found</h3>
+<ul>
+  <li class="good">Hindi was learned: loss fell from 1.43 to about 1.14 for every method.</li>
+  <li class="good">BhashaJEPA moved English internals less than naive fine-tuning: about 13% lower layer drift (one seed).</li>
+  <li class="bad">It did not measurably reduce forgetting. With LoRA there was almost nothing to reduce, and under full fine-tuning it lost about as much English as the naive baseline.</li>
+  <li class="bad">Belebele reading scores stayed near chance at this scale, so they can’t show Hindi or Kannada gains. No transfer to Kannada was observed.</li>
+</ul>
+
+<h3>Our pre-registered hypotheses</h3>
+<div class="wrap"><table>
+<tr><th>Hypothesis</th><th>Status</th></tr>
+<tr><td>H1: retains English better than naive fine-tuning</td><td>Not supported</td></tr>
+<tr><td>H2: prediction beats plain alignment</td><td>Inconclusive (B4 has one seed)</td></tr>
+<tr><td>H3: frozen anchor beats a moving target</td><td>Not run</td></tr>
+<tr><td>H4: drift explains forgetting</td><td>Partly: lower drift, but no forgetting to link it to</td></tr>
+<tr><td>H5: transfers to unseen Kannada</td><td>Not observed</td></tr>
+</table></div>
+
+<div class="figs">
+  <figure><img src="results/main/figures/english_ifeval.png" alt="English instruction following (IFEval) per model with 95% confidence intervals" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>English instruction following per model, with confidence intervals.</figcaption></figure>
+  <figure><img src="results/main/figures/drift.png" alt="Per-layer representation drift of English prompts for each model" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>How far each layer’s English representations moved from the original model.</figcaption></figure>
+  <figure><img src="results/main/figures/pareto.png" alt="Trade-off between Hindi loss and English ability" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>Hindi learned versus English kept.</figcaption></figure>
+</div>
+
+<h2>Limits we want you to know about</h2>
+<ul>
+  <li>One small model (1B), mostly LoRA, 3,000 machine-translated Hindi examples.</li>
+  <li>Only B1 and J1 have three seeds. Everything else is a single run.</li>
+  <li>A 1B model’s Hindi is still weak, and its Kannada is not usable.</li>
+  <li>We did not test safety behaviour after multilingual tuning.</li>
+</ul>
+
+<h2>Run it yourself</h2>
+<p>The code, data preparation, training for all methods, evaluation and a Gradio demo are in the repository, with step-by-step instructions in the README.</p>
+<div class="btns"><a class="btn main" href="https://github.com/VishalBasapure/Hashcode">Open the repository</a></div>
+
+<section class="team">
+  <h2>The team</h2>
+  <p>Vishal, N Abhilash and Prithwin, Team Sci-Py at PES University, built this during the 24-hour Hashcode 14.0 hackathon by PES Innovation Lab.</p>
+  <figure><img src="assets/team.jpg" alt="Team Sci-Py at Hashcode 14.0" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>Team Sci-Py at Hashcode 14.0.</figcaption></figure>
+</section>
+
+</main>
+<footer>
+  Built on <a href="https://arxiv.org/abs/2410.16006">Aggarwal et al., continual fine-tuning (arXiv 2410.16006)</a> and <a href="https://arxiv.org/abs/2509.14252">LLM-JEPA (arXiv 2509.14252)</a>. Data: Bactrian-X (CC BY-NC 4.0, non-commercial research use). Model: Meta Llama 3.2 under its community licence.
+</footer>
+</body>
+</html>
